@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="gfBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4C9BFF"/>
+      <stop offset=".5" stop-color="#1F63F5"/>
+      <stop offset="1" stop-color="#0F36B0"/>
+    </linearGradient>
+    <linearGradient id="gfShine" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".22"/>
+      <stop offset=".55" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect x="24" y="24" width="464" height="464" rx="118" fill="url(#gfBg)"/>
+  <rect x="24" y="24" width="464" height="464" rx="118" fill="url(#gfShine)"/>
+  <!-- Mensaje: el cuerpo de la cámara es un globo de texto -->
+  <path d="M146 150 H290 a42 42 0 0 1 42 42 V298 a42 42 0 0 1 -42 42 H196 L142 384 a6 6 0 0 1 -10 -5 V340 a42 42 0 0 1 -28 -40 V192 a42 42 0 0 1 42 -42 Z" fill="#fff"/>
+  <!-- Las líneas del guion -->
+  <path d="M152 210 H284 M152 246 H262 M152 282 H222" stroke="#1F63F5" stroke-width="18" stroke-linecap="round"/>
+  <!-- El lente de la cámara, conectado al mensaje -->
+  <path d="M352 226 L404 196 Q414 190 414 202 V288 Q414 300 404 294 L352 264 Z" fill="#fff" stroke="#fff" stroke-width="10" stroke-linejoin="round"/>
+</svg>
