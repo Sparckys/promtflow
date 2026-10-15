@@ -189,6 +189,7 @@ function renderSettings() {
   $$('#langSeg button').forEach((b) => b.classList.toggle('on', b.dataset.lang === settings.language));
   $('#protCard').classList.toggle('off', !settings.captureProtection);
   $('#tmSpeed').textContent = FORMAT.speed(settings.speed);
+  $('#btnCountN').textContent = Number(settings.countdown) || 3;
   renderPreview();
   renderLastCheck();
   renderRcButtons();
@@ -255,6 +256,8 @@ function renderStatus() {
   $('#stState').textContent = !status.open ? t('stClosed') : status.counting ? t('stCountdown') : status.playing ? t('stPlaying') : t('stPaused');
   $('#stSection').textContent = status.open ? (status.sectionLabel || '—') + (status.title ? ` · ${status.title}` : '') : current()?.title || '—';
   $('#btnPlay use').setAttribute('href', status.open && (status.playing || status.counting) ? '#i-pause' : '#i-play');
+  $('#btnCount').classList.toggle('counting', !!(status.open && status.counting));
+  $('#btnCount').style.visibility = status.open && status.playing ? 'hidden' : '';
   $('#tmE').textContent = fmtTime(status.open ? status.elapsed : 0);
   $('#tmR').textContent = fmtTime(status.open ? status.remaining : 0);
   $$('#chips .chip').forEach((c, i) => c.classList.toggle('live', !!status.open && status.section === i && status.scriptId === currentId));
@@ -407,13 +410,13 @@ function bindUi() {
 
   $('#btnOpen').onclick = async () => { await flushSave(); pf.invoke('prompter:open', currentId); };
   $$('[data-cmd]').forEach((b) => b.addEventListener('click', async () => {
+    const cmd = b.dataset.cmd;
     if (!status.open) {
       await flushSave();
-      await pf.invoke('prompter:open', currentId);
-      if (b.dataset.cmd !== 'toggle') return;
-      return setTimeout(() => pf.send('prompter:cmd', { cmd: 'play' }), 400);
+      const then = cmd === 'toggle' ? 'play' : cmd === 'countdown' ? 'playCountdown' : null;
+      return pf.invoke('prompter:open', currentId, then);
     }
-    pf.send('prompter:cmd', { cmd: b.dataset.cmd });
+    pf.send('prompter:cmd', { cmd });
   }));
 
   $$('#tabs button').forEach((b) => b.addEventListener('click', () => {
@@ -444,7 +447,7 @@ function bindUi() {
   $('#rcProt').onclick = () => setSetting({ captureProtection: true });
   $('#btnSelfTest').onclick = () => runSelfTest($('#selfTestResult'));
   $('#rcSelfTestBtn').onclick = () => runSelfTest($('#rcSelfTest'));
-  $('#rcOpen').onclick = async () => { await flushSave(); await pf.invoke('prompter:open', currentId); setTimeout(() => pf.send('prompter:cmd', { cmd: 'play' }), 400); };
+  $('#rcOpen').onclick = async () => { await flushSave(); await pf.invoke('prompter:open', currentId, 'play'); };
   $('#rcLoom').onclick = () => window.open('https://www.loom.com/');
   $('#rcSave').onclick = async () => {
     const passed = $$('.rcq').every((c) => c.checked);

@@ -18,7 +18,8 @@ const PRELOAD = path.join(__dirname, 'preload.js');
 // Solo letras y flechas verticales: evitan choques con AltGr (teclado español)
 // y con los atajos de cambio de pestaña del navegador.
 const SHORTCUTS = [
-  { keys: 'CommandOrControl+Alt+P', cmd: 'toggle' },
+  { keys: 'CommandOrControl+Alt+P', cmd: 'countdown' },
+  { keys: 'CommandOrControl+Alt+I', cmd: 'toggle' },
   { keys: 'CommandOrControl+Alt+Up', cmd: 'faster' },
   { keys: 'CommandOrControl+Alt+Down', cmd: 'slower' },
   { keys: 'CommandOrControl+Alt+B', cmd: 'back' },
@@ -68,11 +69,14 @@ function boundsAreVisible(b) {
   });
 }
 
-function openPrompter(scriptId) {
+// thenCmd: comando a ejecutar cuando el teleprompter termine de cargar (p. ej. iniciar).
+function openPrompter(scriptId, thenCmd) {
   if (scriptId) currentScriptId = scriptId;
   if (prompterWin) {
+    if (prompterWin.isMinimized()) prompterWin.restore();
     prompterWin.show();
     sendScriptToPrompter();
+    if (thenCmd) prompterWin.webContents.send('cmd', { cmd: thenCmd });
     return;
   }
   const saved = store.getSettings().prompterBounds;
@@ -98,6 +102,10 @@ function openPrompter(scriptId) {
   applyProtection(prompterWin);
   prompterWin.loadFile(path.join(RENDERER, 'prompter.html'));
   denyNavigation(prompterWin);
+  if (thenCmd) {
+    prompterWin.webContents.once('did-finish-load', () =>
+      setTimeout(() => prompterWin && prompterWin.webContents.send('cmd', { cmd: thenCmd }), 400));
+  }
 
   let boundsTimer;
   const rememberBounds = () => {
@@ -211,13 +219,16 @@ function handleCommand(cmd, arg) {
       return setClickThrough(!clickThrough);
     case 'hide':
       if (!prompterWin) return openPrompter();
+      if (prompterWin.isMinimized()) return prompterWin.restore();
       return prompterWin.isVisible() ? prompterWin.hide() : prompterWin.showInactive();
     default:
-      // toggle, play, pause, back, forward, top, nextSection, prevSection, gotoSection
+      // toggle, countdown, play, pause, back, forward, top, nextSection, prevSection, gotoSection
       if (!prompterWin) {
-        if (cmd === 'toggle' || cmd === 'play') openPrompter();
+        if (cmd === 'toggle' || cmd === 'play') openPrompter(null, 'play');
+        if (cmd === 'countdown') openPrompter(null, 'playCountdown');
         return;
       }
+      if (prompterWin.isMinimized() && ['toggle', 'countdown', 'play'].includes(cmd)) prompterWin.restore();
       prompterWin.webContents.send('cmd', { cmd, arg });
   }
 }
@@ -334,7 +345,7 @@ function setupIpc() {
     return s;
   });
 
-  ipcMain.handle('prompter:open', (_e, scriptId) => openPrompter(scriptId));
+  ipcMain.handle('prompter:open', (_e, scriptId, thenCmd) => openPrompter(scriptId, thenCmd));
   ipcMain.handle('prompter:init', () => ({
     script: currentScriptId ? store.getScript(currentScriptId) : null,
     settings: store.getSettings(),
@@ -344,6 +355,7 @@ function setupIpc() {
   ipcMain.on('prompter:cmd', (_e, { cmd, arg }) => handleCommand(cmd, arg));
   ipcMain.on('prompter:status', (_e, status) => updateStatus(status));
   ipcMain.on('prompter:close', () => prompterWin && prompterWin.close());
+  ipcMain.on('prompter:minimize', () => prompterWin && prompterWin.minimize());
   ipcMain.on('prompter:resize', (_e, { width, height }) => {
     if (!prompterWin) return;
     const b = prompterWin.getBounds();
@@ -441,6 +453,11 @@ async function runSnapshot(dir) {
   prompterWin.webContents.send('cmd', { cmd: 'gotoSection', arg: 1 });
   await wait(1200);
   await shot(prompterWin, 'prompter.png');
+  prompterWin.webContents.send('cmd', { cmd: 'countdown' });
+  await wait(1300);
+  await shot(prompterWin, 'prompter-countdown.png');
+  prompterWin.webContents.send('cmd', { cmd: 'pause' });
+  await wait(300);
   await wait(300);
   await shot(mainWin, 'main-live.png');
   await mainWin.webContents.executeJavaScript(`document.querySelector('[data-tab="privacy"]').click(); document.querySelector('#btnSelfTest').click();`);

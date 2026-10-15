@@ -129,12 +129,14 @@ const pxPerSec = () => settings.speed * lineHeightPx() * 0.13;
 
 // ---------- Reproducción ----------
 
-function play() {
+const countdownSecs = () => Number(settings.countdown) || 3;
+
+// withCountdown: true = cuenta atrás 3·2·1 antes de arrancar; false = arranca al instante.
+function play(withCountdown) {
   if (!script || !sections.length || settings.scrollMode === 'manual') return;
   if (pos >= maxPos - 1) { pos = 0; elapsed = 0; target = null; render(); }
-  const n = Number(settings.countdown) || 0;
-  if (n > 0) startCountdown(n);
-  else { playing = true; }
+  if (withCountdown) startCountdown(countdownSecs());
+  else { stopCountdown(); playing = true; lastTs = performance.now(); }
   updateUi();
   sendStatus(true);
 }
@@ -146,9 +148,9 @@ function pause() {
   sendStatus(true);
 }
 
-function toggle() {
+function toggle(withCountdown) {
   if (playing || counting) pause();
-  else play();
+  else play(withCountdown);
 }
 
 function startCountdown(n) {
@@ -197,8 +199,10 @@ function sectionPos(i) {
 function handleCmd({ cmd, arg }) {
   const step = lineHeightPx() * 2;
   switch (cmd) {
-    case 'toggle': return toggle();
-    case 'play': return play();
+    case 'toggle': return toggle(false);
+    case 'countdown': return toggle(true);
+    case 'play': return play(false);
+    case 'playCountdown': return play(true);
     case 'pause': return pause();
     case 'back': return jumpTo((target ?? pos) - step);
     case 'forward': return jumpTo((target ?? pos) + step);
@@ -250,6 +254,11 @@ function updateUi() {
   start.querySelector('use').setAttribute('href', active ? '#i-pause' : '#i-play');
   $('#startLabel').textContent = active ? t('pPause') : t('pStart');
   start.style.display = settings.scrollMode === 'manual' ? 'none' : '';
+  const cd = $('#bCount');
+  cd.style.display = settings.scrollMode === 'manual' || playing ? 'none' : '';
+  cd.classList.toggle('counting', counting);
+  $('#countNum').textContent = countdownSecs();
+  cd.title = t('pCountdown', { n: [...Array(countdownSecs())].map((_, i) => countdownSecs() - i).join('·') });
   $('#bCt').classList.toggle('on', clickThrough);
   document.body.classList.toggle('ct', clickThrough);
   const k = isMac ? '⌘⌥X' : 'Ctrl+Alt+X';
@@ -320,6 +329,7 @@ $('#bProt').onclick = () => pf.invoke('settings:set', { captureProtection: !sett
 $('#bCompact').onclick = () => pf.invoke('settings:set', { compact: !settings.compact });
 $('#bCt').onclick = () => pf.send('prompter:cmd', { cmd: 'clickThrough' });
 $('#bClose').onclick = () => pf.send('prompter:close');
+$('#bMin').onclick = () => pf.send('prompter:minimize');
 
 viewport.addEventListener('wheel', (e) => {
   e.preventDefault();
@@ -362,7 +372,7 @@ grip.addEventListener('pointerup', () => { resize = null; });
 document.addEventListener('keydown', (e) => {
   if (e.target.tagName === 'INPUT') return;
   const map = {
-    ' ': 'toggle', Enter: 'toggle', Escape: 'pause',
+    ' ': 'toggle', Enter: 'toggle', Escape: 'pause', '3': 'countdown',
     ArrowLeft: 'back', ArrowRight: 'forward',
     PageDown: 'nextSection', PageUp: 'prevSection', Home: 'top',
   };

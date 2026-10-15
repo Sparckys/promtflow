@@ -47,6 +47,9 @@
     .play { background: linear-gradient(180deg, #5b95ff, #2f6bf0); border: 0; color: #fff; font-size: 13px; font-weight: 800; letter-spacing: 1px; min-height: 110px; box-shadow: 0 14px 30px -12px rgba(47,107,240,.8); }
     .play.on { background: linear-gradient(180deg, #ff6b78, #e5484d); box-shadow: 0 14px 30px -12px rgba(229,72,77,.8); }
     .play svg { width: 38px; height: 38px; }
+    .cd { width: 100%; min-height: 56px; display: flex; gap: 10px; color: #9cc2ff; border-color: rgba(77,141,255,.45); background: rgba(77,141,255,.1); }
+    .cd b { font-size: 18px; letter-spacing: 1px; }
+    .cd.on { background: #4d8dff; color: #fff; }
     .row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
     .row .k { min-height: 64px; }
 
@@ -103,6 +106,8 @@
     <button class="k" data-cmd="nextSection"><svg><use href="#i-next"/></svg><span data-t="next"></span></button>
   </section>
 
+  <button class="k cd" id="cd" data-cmd="countdown"><b>3 · 2 · 1</b><span data-t="cd"></span></button>
+
   <section class="row">
     <button class="k" data-cmd="back"><svg><use href="#i-back"/></svg><span data-t="back"></span></button>
     <button class="k" data-cmd="forward"><svg><use href="#i-fwd"/></svg><span data-t="fwd"></span></button>
@@ -123,8 +128,8 @@
 
   <script>
     const L = {
-      es: { connected: 'Conectado', disconnected: 'Sin conexión', elapsed: 'Transcurrido', remaining: 'Restante', prev: 'Anterior', next: 'Siguiente', back: 'Retroceder', fwd: 'Adelantar', smaller: 'Texto −', bigger: 'Texto +', speed: 'Velocidad', slides: 'Diapositivas', start: 'INICIAR', pause: 'PAUSA', playing: 'En reproducción', paused: 'En pausa', countdown: 'Cuenta atrás…', closed: 'Abre el teleprompter en tu computador', manual: 'Modo manual', lost: 'Conexión perdida. Reintentando… Verifica que PromptFlow siga abierto y que estés en la misma red Wi-Fi.' },
-      en: { connected: 'Connected', disconnected: 'Offline', elapsed: 'Elapsed', remaining: 'Remaining', prev: 'Previous', next: 'Next', back: 'Rewind', fwd: 'Skip', smaller: 'Text −', bigger: 'Text +', speed: 'Speed', slides: 'Slides', start: 'START', pause: 'PAUSE', playing: 'Playing', paused: 'Paused', countdown: 'Countdown…', closed: 'Open the teleprompter on your computer', manual: 'Manual mode', lost: 'Connection lost. Retrying… Make sure PromptFlow is still open and you are on the same Wi-Fi.' },
+      es: { connected: 'Conectado', disconnected: 'Sin conexión', elapsed: 'Transcurrido', remaining: 'Restante', prev: 'Anterior', cd: 'Iniciar con cuenta atrás', next: 'Siguiente', back: 'Retroceder', fwd: 'Adelantar', smaller: 'Texto −', bigger: 'Texto +', speed: 'Velocidad', slides: 'Diapositivas', start: 'INICIAR', pause: 'PAUSA', playing: 'En reproducción', paused: 'En pausa', countdown: 'Cuenta atrás…', closed: 'Abre el teleprompter en tu computador', manual: 'Modo manual', lost: 'Conexión perdida. Reintentando… Verifica que PromptFlow siga abierto y que estés en la misma red Wi-Fi.' },
+      en: { connected: 'Connected', disconnected: 'Offline', elapsed: 'Elapsed', remaining: 'Remaining', prev: 'Previous', cd: 'Start with countdown', next: 'Next', back: 'Rewind', fwd: 'Skip', smaller: 'Text −', bigger: 'Text +', speed: 'Speed', slides: 'Slides', start: 'START', pause: 'PAUSE', playing: 'Playing', paused: 'Paused', countdown: 'Countdown…', closed: 'Open the teleprompter on your computer', manual: 'Manual mode', lost: 'Connection lost. Retrying… Make sure PromptFlow is still open and you are on the same Wi-Fi.' },
     };
     let lang = null;
     let status = {};
@@ -153,6 +158,8 @@
       $('#play').classList.toggle('on', active);
       $('#play use').setAttribute('href', active ? '#i-pause' : '#i-play');
       $('#playLabel').textContent = tr(active ? 'pause' : 'start');
+      $('#cd').classList.toggle('on', !!(status.open && status.counting));
+      $('#cd').style.display = status.open && status.playing ? 'none' : '';
       $('#speed').textContent = status.speed ? Number(status.speed).toFixed(2).replace(/\.?0+$/, '') + 'x' : '—';
       $('#bar').style.width = ((status.progress || 0) * 100) + '%';
       const list = $('#slides');

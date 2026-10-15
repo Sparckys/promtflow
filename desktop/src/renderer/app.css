@@ -471,3 +471,12 @@ kbd {
 .st-result.bad b { color: var(--red); }
 .st-result.warn { background: rgba(255,190,92,.08); border-color: rgba(255,190,92,.3); color: #ffd28f; }
 .st-result small { display: block; margin-top: 4px; opacity: .7; font-size: 11px; }
+
+/* Botón de cuenta atrás en la mesa de control */
+.t-count {
+  width: 40px; height: 40px; border-radius: 50%; border: 0; display: grid; place-items: center; margin-left: 6px;
+  background: rgba(77,141,255,.14); color: #9cc2ff; box-shadow: inset 0 0 0 2px rgba(77,141,255,.5); transition: background .12s;
+}
+.t-count:hover { background: rgba(77,141,255,.26); color: #fff; }
+.t-count b { font: 800 16px/1 var(--font-display); }
+.t-count.counting { background: #4d8dff; color: #fff; }

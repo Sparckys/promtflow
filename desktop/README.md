@@ -25,7 +25,7 @@ Teleprompter de escritorio para Windows y Mac, pensado para grabar con Loom, pre
 1. Escribe o importa tu guion (TXT, DOCX, PDF o MD).
 2. Pulsa **Abrir teleprompter**: aparece una ventana flotante siempre visible, encima de PowerPoint, Google Slides o Canva.
 3. Arrástrala desde la barra superior, cámbiale el tamaño desde la esquina o usa **Ventana → Posición rápida** (*Junto a la cámara* la coloca arriba al centro).
-4. Pulsa **INICIAR** (o `Ctrl+Alt+P`).
+4. Pulsa **INICIAR** para arrancar al instante, o el botón **3** (a su izquierda) para una cuenta atrás 3·2·1. El botón **—** minimiza el teleprompter.
 
 ### Formato del guion
 
@@ -40,7 +40,8 @@ Teleprompter de escritorio para Windows y Mac, pensado para grabar con Loom, pre
 
 | Windows | Mac | Acción |
 |---|---|---|
-| `Ctrl+Alt+P` | `⌘⌥P` | Iniciar / pausar |
+| `Ctrl+Alt+P` | `⌘⌥P` | Iniciar con cuenta atrás 3·2·1 / pausar |
+| `Ctrl+Alt+I` | `⌘⌥I` | Iniciar al instante / pausar |
 | `Ctrl+Alt+↑ / ↓` | `⌘⌥↑ / ↓` | Más rápido / más lento |
 | `Ctrl+Alt+B / F` | `⌘⌥B / F` | Retroceder / adelantar unas líneas |
 | `Ctrl+Alt+N / V` | `⌘⌥N / V` | Siguiente / anterior diapositiva |

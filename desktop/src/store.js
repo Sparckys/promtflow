@@ -75,6 +75,7 @@ function load() {
     };
   }
   data.settings = { ...DEFAULT_SETTINGS, ...data.settings };
+  if (!data.settings.countdown) data.settings.countdown = 3;
   save();
 }
 
