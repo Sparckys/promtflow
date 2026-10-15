@@ -1,0 +1,73 @@
+# Compila PromptFlow para Windows (.exe) y Mac (.dmg) y publica ambos en "Releases".
+# Se ejecuta solo al subir cambios a GitHub, o a mano desde la pestaña "Actions".
+name: Build installers
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['desktop/**', '.github/workflows/build.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            script: dist:win
+            file: desktop/dist/PromptFlow-Windows.exe
+          - os: macos-latest
+            script: dist:mac
+            file: desktop/dist/PromptFlow-Mac.dmg
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: desktop
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+      - run: npm ci
+      - run: npm run ${{ matrix.script }}
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os }}
+          path: ${{ matrix.file }}
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+      - name: Publicar descargas
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: PromptFlow — Descargas
+          make_latest: true
+          body: |
+            ## Descarga PromptFlow
+
+            Página de descarga: https://sparckys.github.io/promtflow/
+
+            | Computador | Archivo |
+            |---|---|
+            | 🪟 **Windows** | **PromptFlow-Windows.exe** |
+            | 🍎 **Mac** | **PromptFlow-Mac.dmg** |
+
+            **Windows:** abre el archivo. Si aparece "Windows protegió su PC", pulsa *Más información* → *Ejecutar de todas formas*.
+
+            **Mac:** abre el .dmg y arrastra PromptFlow a Aplicaciones. La primera vez, si macOS dice que no puede verificarlo: *Ajustes del Sistema → Privacidad y seguridad → Abrir de todas formas*.
+          files: out/*

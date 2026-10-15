@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'" />
+  <title>PromptFlow</title>
+  <link rel="stylesheet" href="app.css" />
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-logo" viewBox="0 0 32 32"><rect x="3" y="5" width="26" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M9 11h14M9 15.5h9" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M12 27h8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="i-import" viewBox="0 0 24 24"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 19h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="11" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 15V6.5A1.5 1.5 0 0 1 6.5 5H15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 7V5h4v2m-7 0 .8 11.2A2 2 0 0 0 9.8 20h4.4a2 2 0 0 0 2-1.8L17 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.6 9.5a2.5 2.5 0 1 1 3.6 2.3c-.8.4-1.2.9-1.2 1.7v.3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="16.8" r="1.1" fill="currentColor"/></symbol>
+      <symbol id="i-folder" viewBox="0 0 24 24"><path d="M4 7.5A1.5 1.5 0 0 1 5.5 6H10l2 2h6.5A1.5 1.5 0 0 1 20 9.5v8a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+      <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z" fill="currentColor"/></symbol>
+      <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1.2" fill="currentColor"/><rect x="13.5" y="5" width="4" height="14" rx="1.2" fill="currentColor"/></symbol>
+      <symbol id="i-rewind" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-prev" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-next" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3.5 5 6v5.5c0 4.3 2.9 7.7 7 9 4.1-1.3 7-4.7 7-9V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m9 12 2.2 2.2L15.5 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-cursor" viewBox="0 0 24 24"><path d="M6 4l12 6.5-5.2 1.6L10.5 17z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m13 13 4.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M11 17.5h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="i-text" viewBox="0 0 24 24"><path d="M5 7V5h14v2M12 5v14m-3 0h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-window" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 9h17" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 12h17M12 3.5c2.4 2.6 3.5 5.4 3.5 8.5s-1.1 5.9-3.5 8.5c-2.4-2.6-3.5-5.4-3.5-8.5S9.6 6.1 12 3.5z" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5.5" y="10.5" width="13" height="9.5" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+      <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3.5" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 11a6 6 0 0 0 12 0M12 17v3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="i-monitors" viewBox="0 0 24 24"><rect x="2.5" y="5" width="10" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="11.5" y="9" width="10" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 17h5M14 20h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+      <symbol id="i-rec" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="currentColor"/></symbol>
+    </defs>
+  </svg>
+
+  <div class="app">
+    <!-- ============ Biblioteca ============ -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo"><svg><use href="#i-logo"/></svg></div>
+        <div>
+          <div class="brand-name">PromptFlow</div>
+          <div class="brand-sub" data-i18n="appTagline"></div>
+        </div>
+      </div>
+
+      <label class="search">
+        <svg><use href="#i-search"/></svg>
+        <input id="search" type="search" data-i18n-placeholder="search" />
+      </label>
+
+      <div class="side-actions">
+        <button class="btn btn-soft" id="btnNew"><svg><use href="#i-plus"/></svg><span data-i18n="newScript"></span></button>
+        <button class="btn btn-ghost" id="btnImport" data-i18n-title="importHint"><svg><use href="#i-import"/></svg><span data-i18n="import"></span></button>
+      </div>
+
+      <div class="list" id="list"></div>
+
+      <div class="side-foot">
+        <div class="lang-row">
+          <svg><use href="#i-globe"/></svg>
+          <span data-i18n="language"></span>
+          <div class="seg seg-sm" id="langSeg">
+            <button data-lang="es">ES</button>
+            <button data-lang="en">EN</button>
+          </div>
+        </div>
+        <div class="offline"><svg><use href="#i-lock"/></svg><span data-i18n="offline"></span></div>
+      </div>
+    </aside>
+
+    <!-- ============ Editor ============ -->
+    <main class="editor">
+      <header class="ed-head">
+        <div class="ed-meta">
+          <input id="title" class="ed-title" data-i18n-placeholder="titlePh" spellcheck="false" />
+          <div class="ed-sub">
+            <label class="folder-pill"><svg><use href="#i-folder"/></svg><input id="folder" list="folders" data-i18n-placeholder="folderPh" spellcheck="false" /></label>
+            <datalist id="folders"></datalist>
+            <span class="save-state" id="saveState"></span>
+          </div>
+        </div>
+        <div class="ed-actions">
+          <button class="icon-btn" id="btnSyntax" data-i18n-title="syntaxHelp"><svg><use href="#i-help"/></svg></button>
+          <button class="icon-btn" id="btnDup" data-i18n-title="duplicate"><svg><use href="#i-copy"/></svg></button>
+          <button class="icon-btn icon-danger" id="btnDel" data-i18n-title="delete"><svg><use href="#i-trash"/></svg></button>
+          <button class="btn btn-primary btn-open" id="btnOpen"><svg><use href="#i-window"/></svg><span data-i18n="openPrompter"></span></button>
+        </div>
+      </header>
+
+      <div class="stats">
+        <div class="stat"><b id="stWords">0</b><span data-i18n="words"></span></div>
+        <div class="stat"><b id="stSlides">0</b><span data-i18n="sections"></span></div>
+        <div class="stat"><b id="stDuration">0:00</b><span data-i18n="estDuration"></span></div>
+      </div>
+
+      <div class="chips" id="chips"></div>
+
+      <div class="paper">
+        <textarea id="content" spellcheck="true" data-i18n-placeholder="contentPh"></textarea>
+      </div>
+
+      <!-- Mesa de control: funciona como un control remoto del teleprompter -->
+      <footer class="deck">
+        <div class="deck-state">
+          <span class="live-dot" id="liveDot"></span>
+          <div class="deck-text">
+            <div class="deck-title" id="stState"></div>
+            <div class="deck-sub" id="stSection">—</div>
+          </div>
+        </div>
+
+        <div class="transport">
+          <button class="t-btn" data-cmd="prevSection" data-i18n-title="sc_prevSection"><svg><use href="#i-prev"/></svg></button>
+          <button class="t-btn" data-cmd="back" data-i18n-title="sc_back"><svg><use href="#i-rewind"/></svg></button>
+          <button class="t-play" id="btnPlay" data-cmd="toggle" data-i18n-title="sc_toggle"><svg><use href="#i-play"/></svg></button>
+          <button class="t-btn" data-cmd="slower" data-i18n-title="sc_slower"><span class="t-txt">−</span></button>
+          <button class="t-btn" data-cmd="faster" data-i18n-title="sc_faster"><span class="t-txt">+</span></button>
+          <button class="t-btn" data-cmd="nextSection" data-i18n-title="sc_nextSection"><svg><use href="#i-next"/></svg></button>
+        </div>
+
+        <div class="deck-right">
+          <div class="timers">
+            <span class="tm tm-e" data-i18n-title="elapsed">E <b id="tmE">00:00</b></span>
+            <span class="tm tm-r" data-i18n-title="remaining">R <b id="tmR">00:00</b></span>
+            <span class="tm tm-s"><b id="tmSpeed">3.0x</b></span>
+          </div>
+        </div>
+      </footer>
+    </main>
+
+    <!-- ============ Panel de ajustes ============ -->
+    <aside class="panel">
+      <nav class="tabs" id="tabs">
+        <button data-tab="reading" class="active"><svg><use href="#i-text"/></svg><span data-i18n="tabReading"></span></button>
+        <button data-tab="window"><svg><use href="#i-window"/></svg><span data-i18n="tabWindow"></span></button>
+        <button data-tab="privacy"><svg><use href="#i-shield"/></svg><span data-i18n="tabPrivacy"></span></button>
+        <button data-tab="remote"><svg><use href="#i-phone"/></svg><span data-i18n="tabRemote"></span></button>
+      </nav>
+
+      <div class="panel-body">
+        <!-- Lectura -->
+        <section class="tab-pane active" data-pane="reading">
+          <div class="preview" id="preview">
+            <div class="preview-line"></div>
+            <div class="preview-text" id="previewText">
+              <p class="pv-dim">Today, I want to show you something important…</p>
+              <p class="pv-cur">Your next big idea starts here.</p>
+              <p class="pv-dim">And today, I'm going to show you how.</p>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-label" data-i18n="scrollMode"></div>
+            <div class="seg seg-block" data-seg="scrollMode">
+              <button data-value="auto" data-i18n="modeAuto"></button>
+              <button data-value="manual" data-i18n="modeManual"></button>
+              <button data-value="voice" disabled class="seg-soon"><svg><use href="#i-mic"/></svg><span data-i18n="modeVoice"></span><em data-i18n="soon"></em></button>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-row"><span data-i18n="speed"></span><output data-out="speed"></output></div>
+            <input type="range" data-setting="speed" min="0.25" max="10" step="0.25" />
+          </div>
+          <div class="field">
+            <div class="field-row"><span data-i18n="textSize"></span><output data-out="fontSize"></output></div>
+            <input type="range" data-setting="fontSize" min="16" max="140" step="1" />
+          </div>
+          <div class="field">
+            <div class="field-row"><span data-i18n="lineHeight"></span><output data-out="lineHeight"></output></div>
+            <input type="range" data-setting="lineHeight" min="1" max="2.4" step="0.05" />
+          </div>
+          <div class="field">
+            <div class="field-row"><span data-i18n="textWidth"></span><output data-out="textWidth"></output></div>
+            <input type="range" data-setting="textWidth" min="40" max="100" step="1" />
+          </div>
+          <div class="field">
+            <div class="field-row"><span data-i18n="readingLine"></span><output data-out="readingLine"></output></div>
+            <input type="range" data-setting="readingLine" min="10" max="70" step="1" />
+          </div>
+
+          <div class="field">
+            <div class="field-label" data-i18n="font"></div>
+            <div class="seg seg-block" data-seg="fontFamily">
+              <button data-value="sans" data-i18n="fontSans"></button>
+              <button data-value="serif" data-i18n="fontSerif" class="ff-serif"></button>
+              <button data-value="mono" data-i18n="fontMono" class="ff-mono"></button>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-label" data-i18n="textColor"></div>
+            <div class="swatches" id="swatches">
+              <button data-color="#ffffff" style="--c:#ffffff"></button>
+              <button data-color="#f5ecd7" style="--c:#f5ecd7"></button>
+              <button data-color="#ffe066" style="--c:#ffe066"></button>
+              <button data-color="#9ef0c4" style="--c:#9ef0c4"></button>
+              <button data-color="#9cc8ff" style="--c:#9cc8ff"></button>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-label" data-i18n="countdown"></div>
+            <div class="seg seg-block" data-seg="countdown">
+              <button data-value="0" data-i18n="off"></button>
+              <button data-value="3">3 s</button>
+              <button data-value="5">5 s</button>
+              <button data-value="10">10 s</button>
+            </div>
+          </div>
+
+          <label class="toggle-row"><span data-i18n="highlight"></span><input type="checkbox" data-setting="highlight" /><i class="switch"></i></label>
+          <label class="toggle-row"><span data-i18n="autoPause"></span><input type="checkbox" data-setting="autoPause" /><i class="switch"></i></label>
+          <label class="toggle-row"><span data-i18n="mirror"></span><input type="checkbox" data-setting="mirror" /><i class="switch"></i></label>
+        </section>
+
+        <!-- Ventana -->
+        <section class="tab-pane" data-pane="window">
+          <div class="field">
+            <div class="field-label" data-i18n="monitor"></div>
+            <select id="displaySelect" class="select"></select>
+          </div>
+
+          <div class="field">
+            <div class="field-label" data-i18n="position"></div>
+            <div class="pos-grid">
+              <button data-pos="camera"><i class="pos-mini pm-camera"><b></b></i><span data-i18n="posCamera"></span></button>
+              <button data-pos="bottom"><i class="pos-mini pm-bottom"><b></b></i><span data-i18n="posBottom"></span></button>
+              <button data-pos="left"><i class="pos-mini pm-left"><b></b></i><span data-i18n="posLeft"></span></button>
+              <button data-pos="right"><i class="pos-mini pm-right"><b></b></i><span data-i18n="posRight"></span></button>
+              <button data-pos="full"><i class="pos-mini pm-full"><b></b></i><span data-i18n="posFull"></span></button>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-row"><span data-i18n="bgOpacity"></span><output data-out="bgOpacity"></output></div>
+            <input type="range" data-setting="bgOpacity" min="0" max="1" step="0.05" />
+          </div>
+
+          <label class="toggle-row"><span data-i18n="compact"></span><input type="checkbox" data-setting="compact" /><i class="switch"></i></label>
+
+          <div class="card">
+            <div class="card-head">
+              <div class="card-icon"><svg><use href="#i-cursor"/></svg></div>
+              <div class="card-title" data-i18n="clickThrough"></div>
+              <label class="toggle-inline"><input type="checkbox" id="ctToggle" /><i class="switch"></i></label>
+            </div>
+            <p class="card-text" data-i18n="clickThroughDesc"></p>
+            <div class="kbd-line"><kbd class="mod"></kbd><kbd class="mod2"></kbd><kbd>X</kbd></div>
+          </div>
+
+          <div class="field">
+            <div class="field-label" data-i18n="shortcuts"></div>
+            <p class="hint" data-i18n="shortcutsDesc"></p>
+            <ul class="shortcuts" id="shortcuts"></ul>
+          </div>
+        </section>
+
+        <!-- Privacidad -->
+        <section class="tab-pane" data-pane="privacy">
+          <div class="card card-hero" id="protCard">
+            <div class="card-head">
+              <div class="card-icon"><svg><use href="#i-shield"/></svg></div>
+              <div class="card-title" data-i18n="protection"></div>
+              <label class="toggle-inline"><input type="checkbox" data-setting="captureProtection" /><i class="switch"></i></label>
+            </div>
+            <p class="card-text" data-i18n="protectionDesc"></p>
+            <div class="sys-note" id="sysNote"></div>
+            <button class="btn btn-primary btn-block st-btn" id="btnSelfTest"><svg><use href="#i-check"/></svg><span data-i18n="stRun"></span></button>
+            <div class="st-result" id="selfTestResult" hidden></div>
+          </div>
+
+          <div class="card card-check">
+            <div class="card-head">
+              <div class="card-icon icon-rec"><svg><use href="#i-rec"/></svg></div>
+              <div class="card-title" data-i18n="recordingCheck"></div>
+            </div>
+            <p class="card-text" data-i18n="recordingCheckDesc"></p>
+            <div class="last-check" id="lastCheck"></div>
+            <button class="btn btn-primary btn-block" id="btnCheck"><span data-i18n="runCheck"></span></button>
+          </div>
+
+          <div class="field-label mt" data-i18n="privacyModes"></div>
+          <div class="modes">
+            <div class="mode"><svg><use href="#i-shield"/></svg><div><b data-i18n="modeInvisible"></b><p data-i18n="modeInvisibleDesc"></p></div></div>
+            <div class="mode"><svg><use href="#i-window"/></svg><div><b data-i18n="modeWindow"></b><p data-i18n="modeWindowDesc"></p></div></div>
+            <div class="mode"><svg><use href="#i-monitors"/></svg><div><b data-i18n="modeDual"></b><p data-i18n="modeDualDesc"></p></div></div>
+          </div>
+        </section>
+
+        <!-- Celular -->
+        <section class="tab-pane" data-pane="remote">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-icon"><svg><use href="#i-phone"/></svg></div>
+              <div class="card-title" data-i18n="remoteTitle"></div>
+              <label class="toggle-inline"><input type="checkbox" id="remoteToggle" /><i class="switch"></i></label>
+            </div>
+            <p class="card-text" data-i18n="remoteDesc"></p>
+          </div>
+          <div class="remote-box" id="remoteBox">
+            <div class="qr-frame"><img id="qrImg" alt="QR" /></div>
+            <p class="hint center" data-i18n="remoteScan"></p>
+            <div class="url-row"><code id="remoteUrl"></code><button class="btn btn-ghost btn-sm" id="btnCopyUrl" data-i18n="copy"></button></div>
+            <p class="hint center subtle" data-i18n="remoteFirewall"></p>
+          </div>
+          <p class="hint err" id="remoteErr"></p>
+        </section>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Recording Check -->
+  <div class="modal" id="rcModal" hidden>
+    <div class="modal-card">
+      <div class="modal-head">
+        <div class="card-icon icon-rec"><svg><use href="#i-rec"/></svg></div>
+        <h2 data-i18n="rcTitle"></h2>
+        <button class="icon-btn" id="rcClose" data-i18n-title="close"><svg><use href="#i-x"/></svg></button>
+      </div>
+      <p class="modal-intro" data-i18n="rcIntro"></p>
+      <ol class="steps">
+        <li>
+          <div class="step-n">1</div>
+          <div class="step-b"><b data-i18n="rcStep1"></b><p data-i18n="rcStep1Desc"></p></div>
+          <button class="btn btn-soft btn-sm" id="rcProt"></button>
+        </li>
+        <li>
+          <div class="step-n">&#10003;</div>
+          <div class="step-b"><b data-i18n="stRun"></b><p data-i18n="stAuto"></p><div class="st-result" id="rcSelfTest" hidden></div></div>
+          <button class="btn btn-soft btn-sm" id="rcSelfTestBtn" data-i18n="stTest"></button>
+        </li>
+        <li>
+          <div class="step-n">2</div>
+          <div class="step-b"><b data-i18n="rcStep2"></b><p data-i18n="rcStep2Desc"></p></div>
+          <button class="btn btn-soft btn-sm" id="rcOpen" data-i18n="rcOpen"></button>
+        </li>
+        <li>
+          <div class="step-n">3</div>
+          <div class="step-b"><b data-i18n="rcStep3"></b><p data-i18n="rcStep3Desc"></p></div>
+          <button class="btn btn-ghost btn-sm" id="rcLoom" data-i18n="rcOpenLoom"></button>
+        </li>
+        <li>
+          <div class="step-n">4</div>
+          <div class="step-b">
+            <b data-i18n="rcStep4"></b>
+            <label class="check"><input type="checkbox" class="rcq" /><i><svg><use href="#i-check"/></svg></i><span data-i18n="rcQ1"></span></label>
+            <label class="check"><input type="checkbox" class="rcq" /><i><svg><use href="#i-check"/></svg></i><span data-i18n="rcQ2"></span></label>
+            <label class="check"><input type="checkbox" class="rcq" /><i><svg><use href="#i-check"/></svg></i><span data-i18n="rcQ3"></span></label>
+          </div>
+        </li>
+      </ol>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" id="rcCancel" data-i18n="cancel"></button>
+        <button class="btn btn-primary" id="rcSave" data-i18n="rcDone"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ayuda de formato -->
+  <div class="popover" id="syntaxPop" hidden>
+    <div class="pop-title" data-i18n="syntaxTitle"></div>
+    <dl class="syntax">
+      <dt><code>[Diapositiva 1] Título</code></dt><dd data-i18n="syntaxSlide"></dd>
+      <dt><code># Título</code></dt><dd data-i18n="syntaxHeading"></dd>
+      <dt><code>[PAUSA]</code></dt><dd data-i18n="syntaxPause"></dd>
+      <dt><code>[mirar a cámara]</code></dt><dd data-i18n="syntaxCue"></dd>
+      <dt><code>**texto**</code></dt><dd data-i18n="syntaxBold"></dd>
+    </dl>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="i18n.js"></script>
+  <script src="parser.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

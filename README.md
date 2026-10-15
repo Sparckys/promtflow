@@ -22,3 +22,8 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+## PromptFlow — app de escritorio
+
+- **Descargar (Windows y Mac):** https://sparckys.github.io/promtflow/
+- Código de la app: carpeta [`desktop/`](desktop/) · Página de descarga: carpeta [`docs/`](docs/)

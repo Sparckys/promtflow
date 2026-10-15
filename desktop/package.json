@@ -1,0 +1,81 @@
+{
+  "name": "promptflow",
+  "productName": "PromptFlow",
+  "version": "1.0.0",
+  "description": "Teleprompter profesional de escritorio para grabar con Loom, presentar diapositivas y leer guiones sin que la audiencia lo vea.",
+  "main": "src/main.js",
+  "author": "PromptFlow",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win --publish never",
+    "dist:mac": "electron-builder --mac --publish never",
+    "dist": "electron-builder --publish never"
+  },
+  "build": {
+    "appId": "com.promptflow.teleprompter",
+    "productName": "PromptFlow",
+    "copyright": "PromptFlow",
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "win": {
+      "icon": "build/icon.png",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "PromptFlow-${version}-${os}-${arch}-${target}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "PromptFlow",
+      "artifactName": "PromptFlow-Windows.${ext}"
+    },
+    "mac": {
+      "icon": "build/icon.png",
+      "category": "public.app-category.productivity",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "universal"
+          ]
+        }
+      ],
+      "identity": "-",
+      "artifactName": "PromptFlow-Mac.${ext}",
+      "extendInfo": {
+        "NSScreenCaptureUsageDescription": "PromptFlow usa este permiso solo para comprobar que el teleprompter NO aparece en tus grabaciones."
+      }
+    },
+    "dmg": {
+      "title": "PromptFlow",
+      "artifactName": "PromptFlow-Mac.${ext}"
+    }
+  },
+  "devDependencies": {
+    "electron": "^44.7.2",
+    "electron-builder": "^26.15.3"
+  },
+  "dependencies": {
+    "mammoth": "^1.13.0",
+    "pdf-parse": "^1.1.1",
+    "qrcode": "^1.5.4",
+    "ws": "^8.22.0"
+  }
+}

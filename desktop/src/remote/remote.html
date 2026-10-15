@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0c11" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>PromptFlow Remote</title>
+  <style>
+    :root {
+      --bg: #0a0c11; --surface: #141821; --surface-2: #1c2130; --line: #262c3b;
+      --text: #eef1f7; --text-2: #a9b1c3; --text-3: #6d768b;
+      --accent: #7b8cff; --red: #ff5d6c; --blue: #4d8dff;
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.4 var(--font); }
+    body { min-height: 100dvh; padding: max(16px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 14px; user-select: none; }
+    svg { width: 24px; height: 24px; }
+    button { font: inherit; color: inherit; border: 0; cursor: pointer; touch-action: manipulation; }
+
+    header { display: flex; align-items: center; gap: 10px; }
+    .logo { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: radial-gradient(120% 120% at 20% 0%, #9aa7ff, #6a7bf5 45%, #3b3fa8); }
+    .logo svg { width: 20px; height: 20px; color: #fff; }
+    .brand { font-weight: 700; font-size: 16px; }
+    .conn { margin-left: auto; display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-3); }
+    .conn i { width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
+    .conn.ok i { background: #3ddc97; }
+    .langs { display: flex; background: var(--surface); border: 1px solid var(--line); border-radius: 9px; padding: 2px; }
+    .langs button { background: none; padding: 4px 8px; border-radius: 7px; font-size: 11px; font-weight: 700; color: var(--text-3); }
+    .langs button.on { background: var(--surface-2); color: var(--text); }
+
+    .now { background: linear-gradient(160deg, rgba(123,140,255,.16), var(--surface) 60%); border: 1px solid rgba(123,140,255,.28); border-radius: 18px; padding: 16px; }
+    .badge { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; background: var(--accent); color: #fff; padding: 4px 8px; border-radius: 6px; }
+    .title { font-size: 18px; font-weight: 700; margin-top: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .state { font-size: 13px; color: var(--text-2); margin-top: 2px; }
+    .times { display: flex; gap: 8px; margin-top: 12px; }
+    .times span { flex: 1; background: rgba(0,0,0,.3); border-radius: 10px; padding: 8px 10px; font-size: 11px; color: var(--text-3); }
+    .times b { display: block; font: 700 18px ui-monospace, Menlo, monospace; margin-top: 2px; }
+    .times .e b { color: var(--red); } .times .r b { color: #6fb4ff; }
+    .bar { height: 4px; background: rgba(255,255,255,.08); border-radius: 4px; margin-top: 12px; overflow: hidden; }
+    .bar b { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--blue), var(--accent)); transition: width .3s; }
+
+    .main { display: grid; grid-template-columns: 1fr 1.4fr 1fr; gap: 10px; align-items: stretch; }
+    .k { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; min-height: 76px; display: grid; place-items: center; gap: 4px; color: var(--text-2); font-size: 11.5px; font-weight: 600; padding: 10px 6px; }
+    .k:active { background: var(--surface-2); transform: scale(.97); }
+    .play { background: linear-gradient(180deg, #5b95ff, #2f6bf0); border: 0; color: #fff; font-size: 13px; font-weight: 800; letter-spacing: 1px; min-height: 110px; box-shadow: 0 14px 30px -12px rgba(47,107,240,.8); }
+    .play.on { background: linear-gradient(180deg, #ff6b78, #e5484d); box-shadow: 0 14px 30px -12px rgba(229,72,77,.8); }
+    .play svg { width: 38px; height: 38px; }
+    .row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .row .k { min-height: 64px; }
+
+    .speed { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 12px; display: flex; align-items: center; gap: 12px; }
+    .speed .label { flex: 1; font-size: 12px; color: var(--text-3); }
+    .speed .label b { display: block; font: 700 22px ui-monospace, Menlo, monospace; color: var(--text); }
+    .sbtn { width: 56px; height: 52px; border-radius: 14px; background: var(--surface-2); font-size: 26px; font-weight: 500; }
+    .sbtn:active { background: var(--line); }
+
+    h3 { margin: 6px 4px 0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-3); }
+    .slides { display: grid; gap: 6px; }
+    .slides button { text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; font-size: 14px; color: var(--text-2); display: flex; gap: 10px; align-items: center; }
+    .slides button.cur { border-color: var(--accent); color: var(--text); background: rgba(123,140,255,.12); }
+    .slides button i { font-style: normal; font-weight: 800; font-size: 11px; color: var(--accent); min-width: 22px; }
+    .offline { position: fixed; inset: auto 16px 16px; background: #3a1d22; color: #ffc2c8; border: 1px solid #6b2a33; padding: 10px 14px; border-radius: 12px; font-size: 13px; text-align: center; display: none; }
+    .offline.show { display: block; }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z" fill="currentColor"/></symbol>
+      <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1.2" fill="currentColor"/><rect x="13.5" y="5" width="4" height="14" rx="1.2" fill="currentColor"/></symbol>
+      <symbol id="i-prev" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-next" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-back" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-fwd" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7M20 4v4.5h-4.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-top" viewBox="0 0 24 24"><path d="M6 5h12M12 19V9m0 0-4 4m4-4 4 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-logo" viewBox="0 0 32 32"><rect x="3" y="5" width="26" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M9 11h14M9 15.5h9M12 27h8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+    </defs>
+  </svg>
+
+  <header>
+    <div class="logo"><svg><use href="#i-logo"/></svg></div>
+    <div class="brand">PromptFlow</div>
+    <div class="conn" id="conn"><i></i><span id="connText"></span></div>
+    <div class="langs"><button data-l="es">ES</button><button data-l="en">EN</button></div>
+  </header>
+
+  <section class="now">
+    <span class="badge" id="badge">—</span>
+    <div class="title" id="title">—</div>
+    <div class="state" id="state"></div>
+    <div class="times">
+      <span class="e" data-t="elapsed"></span>
+      <span class="r" data-t="remaining"></span>
+    </div>
+    <div class="bar"><b id="bar"></b></div>
+  </section>
+
+  <section class="main">
+    <button class="k" data-cmd="prevSection"><svg><use href="#i-prev"/></svg><span data-t="prev"></span></button>
+    <button class="k play" id="play" data-cmd="toggle"><svg><use href="#i-play"/></svg><span id="playLabel"></span></button>
+    <button class="k" data-cmd="nextSection"><svg><use href="#i-next"/></svg><span data-t="next"></span></button>
+  </section>
+
+  <section class="row">
+    <button class="k" data-cmd="back"><svg><use href="#i-back"/></svg><span data-t="back"></span></button>
+    <button class="k" data-cmd="forward"><svg><use href="#i-fwd"/></svg><span data-t="fwd"></span></button>
+    <button class="k" data-cmd="fontDown"><b style="font-size:20px">A−</b><span data-t="smaller"></span></button>
+    <button class="k" data-cmd="fontUp"><b style="font-size:24px">A+</b><span data-t="bigger"></span></button>
+  </section>
+
+  <section class="speed">
+    <button class="sbtn" data-cmd="slower">−</button>
+    <div class="label"><span data-t="speed"></span><b id="speed">—</b></div>
+    <button class="sbtn" data-cmd="faster">+</button>
+  </section>
+
+  <h3 data-t="slides"></h3>
+  <section class="slides" id="slides"></section>
+
+  <div class="offline" id="offline"></div>
+
+  <script>
+    const L = {
+      es: { connected: 'Conectado', disconnected: 'Sin conexión', elapsed: 'Transcurrido', remaining: 'Restante', prev: 'Anterior', next: 'Siguiente', back: 'Retroceder', fwd: 'Adelantar', smaller: 'Texto −', bigger: 'Texto +', speed: 'Velocidad', slides: 'Diapositivas', start: 'INICIAR', pause: 'PAUSA', playing: 'En reproducción', paused: 'En pausa', countdown: 'Cuenta atrás…', closed: 'Abre el teleprompter en tu computador', manual: 'Modo manual', lost: 'Conexión perdida. Reintentando… Verifica que PromptFlow siga abierto y que estés en la misma red Wi-Fi.' },
+      en: { connected: 'Connected', disconnected: 'Offline', elapsed: 'Elapsed', remaining: 'Remaining', prev: 'Previous', next: 'Next', back: 'Rewind', fwd: 'Skip', smaller: 'Text −', bigger: 'Text +', speed: 'Speed', slides: 'Slides', start: 'START', pause: 'PAUSE', playing: 'Playing', paused: 'Paused', countdown: 'Countdown…', closed: 'Open the teleprompter on your computer', manual: 'Manual mode', lost: 'Connection lost. Retrying… Make sure PromptFlow is still open and you are on the same Wi-Fi.' },
+    };
+    let lang = null;
+    let status = {};
+    let ws = null;
+    const $ = (s) => document.querySelector(s);
+    const key = new URLSearchParams(location.search).get('k');
+    const fmt = (s) => { s = Math.max(0, Math.round(s || 0)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
+    const tr = (k) => L[lang || status.lang || 'es'][k];
+
+    function render() {
+      document.documentElement.lang = lang || status.lang || 'es';
+      document.querySelectorAll('[data-l]').forEach((b) => b.classList.toggle('on', b.dataset.l === (lang || status.lang || 'es')));
+      document.querySelectorAll('[data-t]').forEach((el) => {
+        const k = el.dataset.t;
+        if (k === 'elapsed') el.innerHTML = tr(k) + '<b>' + fmt(status.elapsed) + '</b>';
+        else if (k === 'remaining') el.innerHTML = tr(k) + '<b>' + fmt(status.remaining) + '</b>';
+        else el.textContent = tr(k);
+      });
+      const on = ws && ws.readyState === 1;
+      $('#conn').classList.toggle('ok', on);
+      $('#connText').textContent = tr(on ? 'connected' : 'disconnected');
+      $('#badge').textContent = status.open ? status.sectionLabel || '—' : '—';
+      $('#title').textContent = status.title || 'PromptFlow';
+      $('#state').textContent = !status.open ? tr('closed') : status.manual ? tr('manual') : status.counting ? tr('countdown') : status.playing ? tr('playing') : tr('paused');
+      const active = status.open && (status.playing || status.counting);
+      $('#play').classList.toggle('on', active);
+      $('#play use').setAttribute('href', active ? '#i-pause' : '#i-play');
+      $('#playLabel').textContent = tr(active ? 'pause' : 'start');
+      $('#speed').textContent = status.speed ? Number(status.speed).toFixed(2).replace(/\.?0+$/, '') + 'x' : '—';
+      $('#bar').style.width = ((status.progress || 0) * 100) + '%';
+      const list = $('#slides');
+      const titles = status.open ? status.sections || [] : [];
+      if (list.dataset.sig !== titles.join('|')) {
+        list.dataset.sig = titles.join('|');
+        list.innerHTML = '';
+        titles.forEach((title, i) => {
+          const b = document.createElement('button');
+          b.innerHTML = '<i>' + String(i + 1).padStart(2, '0') + '</i><span></span>';
+          b.lastChild.textContent = title;
+          b.onclick = () => send('gotoSection', i);
+          list.append(b);
+        });
+      }
+      [...list.children].forEach((b, i) => b.classList.toggle('cur', i === status.section));
+    }
+
+    function send(cmd, arg) {
+      if (ws && ws.readyState === 1) ws.send(JSON.stringify({ cmd, arg }));
+      if (navigator.vibrate) navigator.vibrate(12);
+    }
+
+    function connect() {
+      ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws?k=' + encodeURIComponent(key));
+      ws.onopen = () => { $('#offline').classList.remove('show'); render(); };
+      ws.onmessage = (e) => { const m = JSON.parse(e.data); if (m.type === 'status') { status = m.status; render(); } };
+      ws.onclose = () => { $('#offline').textContent = tr('lost'); $('#offline').classList.add('show'); render(); setTimeout(connect, 1500); };
+    }
+
+    document.querySelectorAll('[data-cmd]').forEach((b) => b.addEventListener('click', () => send(b.dataset.cmd)));
+    document.querySelectorAll('[data-l]').forEach((b) => b.addEventListener('click', () => { lang = b.dataset.l; render(); }));
+    render();
+    connect();
+  </script>
+</body>
+</html>
