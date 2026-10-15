@@ -1,0 +1,1058 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Teleprompter gratis para Windows y Mac. Graba cursos, clases, lives de Skool y presentaciones sin trabarte. Loom y OBS no lo graban.">
+<meta name="theme-color" content="#07080F">
+<link rel="icon" href="img/icon.png">
+<meta property="og:image" content="https://sparckys.github.io/promtflow/img/see.webp">
+<meta property="og:type" content="website"><meta property="og:title" content="PromptFlow — Teleprompter para enseñar"><meta property="og:description" content="Teleprompter gratis para Windows y Mac. Graba cursos, clases, lives de Skool y presentaciones sin trabarte. Loom y OBS no lo graban.">
+<title>PromptFlow</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Serif:ital@1&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Estudio de grabación de noche: fondo tinta azulada, índigo eléctrico con fuerza (degradado índigo → azul → hielo), rojo del punto REC como segundo acento. Efecto estrella: lente de grabación sobre el video real. Un solo look oscuro, deliberado. */
+:root {
+  --ink: #07080F;
+  --ink-2: #0C0E19;
+  --ink-3: #131628;
+  --card: rgba(170,180,255,.04);
+  --line: rgba(170,180,255,.10);
+  --line-2: rgba(170,180,255,.18);
+  --text: #F1F2FB;
+  --muted: #B9BDD6;
+  --dim: #7E83A3;
+  --indigo: #6E6BFF;
+  --blue: #3D7BFF;
+  --ice: #9FC4FF;
+  --violet: #A68BFF;
+  --rec: #FF4D5E;
+  --green: #3DDC97;
+  --amber: #FFB547;
+  --paper: #FBF8F2;
+  --paper-ink: #15172A;
+  --f: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --s: "Instrument Serif", Georgia, serif;
+  --m: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  --wrap: 1180px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; overflow-x: clip; }
+body { margin: 0; background: var(--ink); color: var(--text); font: 400 16.5px/1.6 var(--f); -webkit-font-smoothing: antialiased; overflow-x: clip; }
+img, video, canvas { max-width: 100%; display: block; }
+img { height: auto; }
+a { color: inherit; text-decoration: none; }
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { font-weight: 800; letter-spacing: -.035em; text-wrap: balance; line-height: 1.02; }
+h2 { font-size: clamp(34px, 1.6rem + 2.8vw, 56px); }
+.it { font-family: var(--s); font-style: italic; font-weight: 400; letter-spacing: -.01em; }
+.grad { background: linear-gradient(95deg, var(--violet), var(--indigo) 35%, var(--blue) 70%, var(--ice)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.wrap { max-width: var(--wrap); margin-inline: auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+section { padding-block: clamp(72px, 9vw, 124px); position: relative; }
+.eyebrow { font: 700 12px/1 var(--m); letter-spacing: .14em; text-transform: uppercase; color: var(--ice); display: inline-flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+.eyebrow::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--rec); box-shadow: 0 0 0 4px rgba(255,77,94,.18); }
+.lede { color: var(--muted); font-size: clamp(16.5px, 1rem + .3vw, 19.5px); max-width: 60ch; }
+.center { text-align: center; } .center .lede { margin-inline: auto; } .center .eyebrow { justify-content: center; }
+:focus-visible { outline: 2px solid var(--ice); outline-offset: 3px; border-radius: 10px; }
+.ico { width: 18px; height: 18px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Destacador que se pinta */
+.hl { color: #fff; padding: 0 .14em; margin: 0 -.04em; border-radius: .14em; background-image: linear-gradient(100deg, var(--indigo), var(--blue)); background-repeat: no-repeat; background-size: 100% 88%; background-position: 0 60%; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.js .hl { background-size: 0% 88%; transition: background-size .9s cubic-bezier(.65,0,.25,1); }
+.js .hl.on { background-size: 100% 88%; }
+
+/* Subrayado que se dibuja */
+.squig { position: relative; white-space: nowrap; }
+.squig svg { position: absolute; left: -2%; bottom: -.18em; width: 104%; height: .34em; overflow: visible; }
+.squig path { fill: none; stroke: var(--rec); stroke-width: 3.6; stroke-linecap: round; stroke-dasharray: 260; stroke-dashoffset: 0; }
+
+/* Botones con imán */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; height: 52px; padding: 0 24px; border-radius: 999px; font: 700 15.5px/1 var(--f); border: 1px solid transparent; cursor: pointer; white-space: nowrap; transition: box-shadow .25s, background .2s, border-color .2s; will-change: transform; color: inherit; }
+.btn svg { width: 20px; height: 20px; }
+.btn-p { background: linear-gradient(180deg, #8C89FF, var(--indigo) 45%, #4B55F0); color: #fff; box-shadow: 0 14px 40px -12px rgba(110,107,255,.85), inset 0 1px 0 rgba(255,255,255,.3); }
+.btn-p:hover { box-shadow: 0 0 0 6px rgba(110,107,255,.18), 0 18px 48px -10px rgba(110,107,255,1), inset 0 1px 0 rgba(255,255,255,.3); }
+.btn-g { background: rgba(170,180,255,.06); border-color: var(--line-2); color: var(--text); }
+.btn-g:hover { background: rgba(170,180,255,.12); }
+.btn-sm { height: 40px; padding: 0 17px; font-size: 13.5px; }
+.btn small { display: block; font: 600 10.5px/1.1 var(--m); letter-spacing: .06em; opacity: .75; text-transform: uppercase; margin-bottom: 3px; }
+.btn .two { text-align: left; line-height: 1.05; }
+.chip { display: inline-flex; align-items: center; gap: 9px; padding: 7px 15px 7px 8px; border-radius: 999px; background: rgba(170,180,255,.05); border: 1px solid var(--line-2); font-size: 13.5px; color: var(--muted); }
+.chip b { color: var(--text); font-weight: 700; }
+.chip .ok { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--green); color: #052a1b; font-weight: 800; font-size: 12px; }
+
+/* Cursor propio (solo mouse) */
+.cur { position: fixed; left: 0; top: 0; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: var(--ice); pointer-events: none; z-index: 100; mix-blend-mode: difference; transition: width .25s, height .25s, margin .25s, opacity .3s; opacity: 0; }
+.cur.big { width: 46px; height: 46px; margin: -23px 0 0 -23px; }
+@media (pointer: coarse) { .cur { display: none; } }
+
+/* Navegación */
+.nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 50; transition: background .3s, border-color .3s; border-bottom: 1px solid transparent; }
+.nav.solid { background: rgba(7,8,15,.78); backdrop-filter: saturate(150%) blur(14px); border-color: var(--line); }
+.nav .wrap { height: 70px; display: flex; align-items: center; gap: 26px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; letter-spacing: -.03em; }
+.brand img { width: 32px; height: 32px; border-radius: 9px; }
+.nav-links { display: flex; gap: 24px; font-size: 14.5px; color: var(--muted); }
+.nav-links a:hover { color: var(--text); }
+.nav-right { margin-left: auto; }
+@media (max-width: 900px) { .nav-links { display: none; } }
+
+/* Portada */
+.hero { padding-block: clamp(40px, 6vw, 80px) clamp(60px, 8vw, 100px); overflow: hidden; --mx: 50%; --my: 30%; }
+.hero .dots { position: absolute; inset: 0; pointer-events: none; background-image: radial-gradient(rgba(159,196,255,.55) 1.2px, transparent 1.3px); background-size: 26px 26px; -webkit-mask-image: radial-gradient(260px 260px at var(--mx) var(--my), #000 0%, rgba(0,0,0,.25) 45%, transparent 75%); mask-image: radial-gradient(260px 260px at var(--mx) var(--my), #000 0%, rgba(0,0,0,.25) 45%, transparent 75%); }
+.hero .dots2 { position: absolute; inset: 0; pointer-events: none; background-image: radial-gradient(rgba(170,180,255,.07) 1px, transparent 1.2px); background-size: 26px 26px; }
+.hero .glow { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(520px 360px at var(--mx) var(--my), rgba(110,107,255,.16), transparent 70%), radial-gradient(760px 440px at 50% 12%, rgba(61,123,255,.14), transparent 70%), radial-gradient(600px 400px at 85% 75%, rgba(255,77,94,.07), transparent 70%); }
+#motes { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+.hero-c { position: relative; z-index: 2; display: grid; justify-items: center; text-align: center; gap: 24px; max-width: 960px; margin-inline: auto; }
+.hero-c > * { max-width: 100%; min-width: 0; }
+.hero h1 { font-size: clamp(40px, 1.4rem + 5vw, 86px); line-height: .98; letter-spacing: -.05em; }
+.rot { display: inline-block; position: relative; vertical-align: bottom; height: 1.14em; overflow: hidden; transition: width .6s cubic-bezier(.7,0,.2,1); text-align: left; }
+.rot > span { position: absolute; left: 0; top: 0; white-space: nowrap; transform: translateY(130%); transition: transform .7s cubic-bezier(.7,0,.2,1); padding-inline: .06em; line-height: 1.14; }
+.rot > span.on { position: relative; transform: none; } .rot > span.out { transform: translateY(-130%); }
+.rot > span i { font-family: var(--s); font-style: italic; font-weight: 400; letter-spacing: -.01em; font-size: 1.1em; padding-right: .12em; background: linear-gradient(90deg, var(--violet), var(--indigo) 40%, var(--blue) 75%, var(--ice)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero-ctas { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.meta { font-size: 13.5px; color: var(--dim); display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; }
+.meta span { display: inline-flex; align-items: center; gap: 6px; }
+.meta span::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--indigo); }
+.fl { position: absolute; z-index: 1; width: clamp(64px, 6.6vw, 100px); filter: drop-shadow(0 24px 30px rgba(0,0,0,.65)); will-change: transform; }
+.fl img { width: 100%; animation: float 7s ease-in-out infinite; }
+.fl.a { left: 4%; top: 150px; } .fl.b { right: 5%; top: 110px; } .fl.c { left: 9%; top: 400px; } .fl.d { right: 10%; top: 360px; } .fl.e { left: 15%; top: 120px; width: clamp(46px, 4.4vw, 68px); } .fl.f { right: 18%; top: 96px; width: clamp(46px, 4.4vw, 66px); }
+.fl.b img { animation-delay: -2s } .fl.c img { animation-delay: -4s } .fl.d img { animation-delay: -1s } .fl.e img { animation-delay: -5s } .fl.f img { animation-delay: -3s }
+@keyframes float { 0%,100% { transform: translateY(0) rotate(-5deg); } 50% { transform: translateY(-15px) rotate(4deg); } }
+@media (max-width: 860px) { .fl { display: none; } .chip { flex-wrap: wrap; justify-content: center; text-align: center; } }
+
+/* Monitor con el video real + lente de grabación (efecto estrella) */
+.stage { position: relative; z-index: 2; margin: clamp(40px, 6vw, 70px) auto 0; max-width: 1060px; }
+.monitor { position: relative; border-radius: 18px; padding: 10px; background: linear-gradient(180deg, #1B1F35, #0E1020); border: 1px solid var(--line-2); box-shadow: 0 60px 120px -40px #000, 0 0 0 1px rgba(255,255,255,.03) inset; }
+.monitor::after { content: ""; position: absolute; left: 50%; bottom: -26px; width: 22%; height: 16px; transform: translateX(-50%); border-radius: 0 0 14px 14px; background: linear-gradient(180deg, #151829, #0B0D18); }
+.screen { position: relative; aspect-ratio: 1280 / 686; max-width: 100%; border-radius: 10px; overflow: hidden; background: var(--paper) center / cover no-repeat; cursor: none; }
+.screen video, .screen > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.lens { position: absolute; left: 0; top: 0; width: clamp(130px, 22vw, 250px); aspect-ratio: 1; border-radius: 50%; pointer-events: none; z-index: 3;
+  background-repeat: no-repeat; box-shadow: 0 0 0 3px var(--rec), 0 0 0 9px rgba(255,77,94,.22), 0 24px 60px -10px rgba(0,0,0,.7); will-change: transform; }
+.lens b { position: absolute; left: 50%; bottom: -14px; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; background: var(--rec); color: #fff; font: 700 10.5px/1 var(--m); letter-spacing: .1em; white-space: nowrap; }
+.lens b::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #fff; animation: blink 1.1s infinite; }
+@keyframes blink { 50% { opacity: .25; } }
+.cap-row { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 40px; font-size: 13.5px; color: var(--dim); }
+.cap-row span { display: inline-flex; align-items: center; gap: 8px; }
+.cap-row i { width: 12px; height: 12px; border-radius: 50%; }
+
+/* Marquesina */
+.logos { padding-block: 26px 10px; border-block: 1px solid var(--line); background: var(--ink-2); overflow: hidden; }
+.logos p { text-align: center; font: 700 11px/1 var(--m); letter-spacing: .14em; text-transform: uppercase; color: var(--dim); margin-bottom: 18px; }
+.mq { display: flex; width: max-content; gap: 12px; animation: mq 40s linear infinite; padding-bottom: 16px; }
+.mq-it { display: inline-flex; align-items: center; gap: 10px; padding: 10px 18px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); font-size: 15px; font-weight: 700; white-space: nowrap; color: var(--muted); }
+.mq-it i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); box-shadow: 0 0 10px var(--c); }
+@keyframes mq { to { transform: translateX(-50%); } }
+.logos:hover .mq { animation-play-state: paused; }
+
+/* Analogía */
+.ana h2 { font-size: clamp(34px, 1.6rem + 3.2vw, 62px); max-width: 17ch; margin-inline: auto; }
+.ana .lede { margin-top: 22px; }
+
+/* La prueba: lado a lado */
+.proof { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 48px; }
+.pv { border-radius: 18px; background: var(--ink-2); border: 1px solid var(--line); padding: 12px; min-width: 0; }
+.pv-head { display: flex; align-items: center; gap: 10px; padding: 4px 6px 12px; font-weight: 700; }
+.pv-head .dot { width: 10px; height: 10px; border-radius: 50%; }
+.pv-head small { margin-left: auto; font: 600 11px var(--m); color: var(--dim); letter-spacing: .06em; text-transform: uppercase; }
+.pv .screen { cursor: default; border-radius: 10px; }
+.pv.rec { border-color: rgba(255,77,94,.35); box-shadow: 0 30px 70px -40px rgba(255,77,94,.5); }
+.pv.rec .recb { position: absolute; left: 10px; top: 10px; z-index: 2; display: inline-flex; gap: 6px; align-items: center; padding: 5px 9px; border-radius: 8px; background: rgba(0,0,0,.65); color: #fff; font: 700 10.5px var(--m); letter-spacing: .08em; }
+.pv.rec .recb::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--rec); animation: blink 1.1s infinite; }
+.proof-note { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: center; margin-top: 18px; padding: 18px 20px; border-radius: 18px; background: linear-gradient(120deg, rgba(61,220,151,.1), var(--card) 60%); border: 1px solid rgba(61,220,151,.28); }
+.proof-note img { width: 54px; }
+.proof-note b { display: block; font-size: 17px; }
+.proof-note p { color: var(--muted); font-size: 14.5px; }
+.works { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 18px; }
+.works div { padding: 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); font-size: 14px; color: var(--muted); }
+.works b { display: flex; align-items: center; gap: 8px; color: var(--text); font-size: 15px; margin-bottom: 4px; }
+.works b::before { content: "✓"; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--green); color: #052a1b; font-size: 11px; font-weight: 800; }
+.works .mac b::before { content: "!"; background: var(--amber); color: #3a2400; }
+@media (max-width: 860px) { .proof { grid-template-columns: 1fr; } .works { grid-template-columns: 1fr 1fr; } }
+
+/* Para quién: bento */
+.bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-top: 48px; }
+.bc { position: relative; overflow: hidden; border-radius: 22px; padding: 26px; background: var(--card); border: 1px solid var(--line); min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.bc img.i3 { width: 64px; margin: -6px 0 6px -6px; filter: drop-shadow(0 12px 18px rgba(0,0,0,.5)); }
+.bc h3 { font-size: 23px; }
+.bc p { color: var(--muted); font-size: 15px; }
+.bc ul { margin: 6px 0 0; padding: 0; list-style: none; display: grid; gap: 7px; font-size: 14.5px; color: var(--muted); }
+.bc li { display: flex; gap: 9px; } .bc li::before { content: "→"; color: var(--ice); }
+.bc.s3 { grid-column: span 3; } .bc.s2 { grid-column: span 2; } .bc.s4 { grid-column: span 4; }
+.bc.skool { background: linear-gradient(150deg, #FF8A3D 0%, #F0562A 45%, #8A2A12 100%); border: 0; color: #fff; }
+.bc.skool p, .bc.skool li { color: rgba(255,255,255,.88); } .bc.skool li::before { color: #fff; }
+.bc.course { background: linear-gradient(150deg, #23B26C, #0E5A37); border: 0; } .bc.course p, .bc.course li { color: rgba(255,255,255,.88); } .bc.course li::before { color: #fff; }
+.mini-sk { margin-top: auto; border-radius: 14px; background: rgba(0,0,0,.28); padding: 12px; display: grid; gap: 8px; font-size: 13px; }
+.mini-sk div { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; background: rgba(255,255,255,.1); }
+.mini-sk em { font-style: normal; margin-left: auto; font: 700 10px var(--m); letter-spacing: .08em; padding: 3px 7px; border-radius: 999px; background: #fff; color: #8A2A12; }
+.mini-sk span.n { width: 22px; height: 22px; border-radius: 7px; display: grid; place-items: center; background: rgba(255,255,255,.2); font-weight: 800; font-size: 11px; }
+@media (max-width: 900px) { .bento { grid-template-columns: 1fr; } .bc.s3, .bc.s2, .bc.s4 { grid-column: auto; } }
+
+/* Cómo funciona: riel + maqueta fija */
+.how { display: grid; grid-template-columns: 1fr 1.15fr; gap: clamp(24px, 4vw, 60px); margin-top: 48px; align-items: start; }
+.steps { position: relative; display: grid; gap: 10px; }
+.steps::before { content: ""; position: absolute; left: 25px; top: 30px; bottom: 30px; width: 2px; background: var(--line); }
+.steps .rail { position: absolute; left: 25px; top: 30px; width: 2px; height: var(--rail, 0%); background: linear-gradient(var(--indigo), var(--rec)); transition: height .5s; max-height: calc(100% - 60px); }
+.st { position: relative; display: grid; grid-template-columns: 52px 1fr; gap: 14px; padding: 16px 16px 16px 0; border-radius: 16px; cursor: pointer; transition: background .2s; text-align: left; background: none; border: 0; color: inherit; font: inherit; }
+.st .n { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; background: var(--ink-3); border: 1px solid var(--line-2); font: 700 15px var(--m); color: var(--dim); position: relative; z-index: 1; transition: all .3s; }
+.st h3 { font-size: 20px; margin: 4px 0 4px; }
+.st p { color: var(--dim); font-size: 14.5px; transition: color .3s; }
+.st.on { background: var(--card); }
+.st.on .n { background: linear-gradient(180deg, #8C89FF, var(--indigo)); color: #fff; border-color: transparent; box-shadow: 0 0 0 6px rgba(110,107,255,.16); }
+.st.on p { color: var(--muted); }
+.st kbd { font: 600 12px var(--m); padding: 2px 6px; border-radius: 6px; background: var(--ink-3); border: 1px solid var(--line-2); color: var(--text); }
+.mockbox { position: sticky; top: 100px; border-radius: 20px; padding: 12px; background: var(--ink-2); border: 1px solid var(--line-2); box-shadow: 0 40px 90px -40px #000; }
+.mock { display: none; }
+.mock.on { display: block; animation: fade .45s ease; }
+.mock img { border-radius: 12px; width: 100%; }
+.mock figcaption { font-size: 13px; color: var(--dim); padding: 10px 4px 2px; }
+@keyframes fade { from { opacity: .3; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (max-width: 900px) { .how { grid-template-columns: 1fr; } .mockbox { position: relative; top: 0; } }
+
+/* Pruébalo aquí: teleprompter + control del celular */
+.try { display: grid; grid-template-columns: 1fr 300px; gap: 24px; margin-top: 48px; align-items: center; }
+.tp { border-radius: 16px; overflow: hidden; background: rgba(9,11,15,.96); border: 1px solid rgba(255,255,255,.12); box-shadow: 0 40px 90px -40px #000; min-width: 0; }
+.tp-bar { display: flex; align-items: center; gap: 8px; padding: 9px 12px; background: #141826; border-bottom: 1px solid rgba(255,255,255,.06); font: 700 11px var(--m); }
+.tp-bar .badge { background: var(--indigo); color: #fff; padding: 4px 8px; border-radius: 6px; letter-spacing: .08em; }
+.tp-bar .t { color: var(--dim); } .tp-bar .e { color: var(--rec); } .tp-bar .r { color: #6FB4FF; }
+.tp-bar .sh { margin-left: auto; color: var(--green); display: inline-flex; align-items: center; gap: 6px; font-size: 10.5px; }
+.tp-view { position: relative; height: 290px; overflow: hidden; -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,.25), #000 28%, #000 62%, rgba(0,0,0,.35)); mask-image: linear-gradient(to bottom, rgba(0,0,0,.25), #000 28%, #000 62%, rgba(0,0,0,.35)); }
+.tp-band { position: absolute; left: 0; right: 0; top: 30%; height: 54px; background: linear-gradient(90deg, rgba(110,107,255,.22), transparent 70%); border-left: 3px solid var(--indigo); pointer-events: none; }
+.tp-txt { padding: 87px 7% 300px; font-size: clamp(22px, 1.2rem + 1.2vw, 32px); line-height: 1.6; font-weight: 700; color: #fff; will-change: transform; }
+.tp-txt p { margin: 0 0 .5em; }
+.tp-txt .sec { font: 700 12px var(--m); letter-spacing: .14em; color: var(--ice); text-transform: uppercase; margin: 10px 0 8px; }
+.tp-txt .cue { display: inline-block; font: 700 .45em/1.4 var(--m); letter-spacing: .08em; padding: .25em .7em; border-radius: .5em; vertical-align: middle; color: var(--ice); background: rgba(110,107,255,.14); border: 1px solid rgba(110,107,255,.4); }
+.tp-cd { position: absolute; inset: 0; display: grid; place-items: center; font: 800 120px/1 var(--f); color: #fff; background: rgba(9,11,15,.55); }
+.tp-cd span { animation: pop 1s ease both; }
+@keyframes pop { 0% { transform: scale(1.5); opacity: 0; } 25% { transform: scale(1); opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; transform: scale(.85); } }
+.tp-ctl { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #141826; border-top: 1px solid rgba(255,255,255,.06); flex-wrap: wrap; }
+.tp-ctl button { border: 0; cursor: pointer; font: inherit; }
+.b3 { width: 36px; height: 36px; border-radius: 50%; background: rgba(77,141,255,.16); color: #9CC2FF; box-shadow: inset 0 0 0 2px rgba(77,141,255,.55); font: 800 15px var(--f) !important; }
+.b3.on { background: #4D8DFF; color: #fff; }
+.bgo { height: 36px; padding: 0 16px; border-radius: 10px; color: #fff; font: 800 12px var(--m) !important; letter-spacing: .1em; background: linear-gradient(180deg, #4D8DFF, #2F6BF0); display: inline-flex; align-items: center; gap: 7px; }
+.bgo.on { background: linear-gradient(180deg, #FF6B78, #E5484D); }
+.spd { display: flex; align-items: center; gap: 8px; color: var(--dim); font: 700 12px var(--m); margin-left: auto; }
+.spd input { width: 120px; accent-color: var(--blue); }
+.phone { width: 300px; max-width: 100%; margin-inline: auto; border-radius: 42px; padding: 12px; background: #1A1D2C; border: 1px solid var(--line-2); box-shadow: 0 50px 100px -40px #000; }
+.phone-in { border-radius: 32px; background: #0A0C11; padding: 18px 14px 16px; display: grid; gap: 10px; }
+.ph-top { display: flex; align-items: center; gap: 8px; font: 700 13px var(--f); }
+.ph-top img { width: 26px; border-radius: 8px; }
+.ph-top span { margin-left: auto; font: 600 10.5px var(--m); color: var(--green); display: inline-flex; gap: 5px; align-items: center; }
+.ph-top span::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+.ph-now { border-radius: 16px; padding: 12px; background: linear-gradient(160deg, rgba(110,107,255,.18), #141821 60%); border: 1px solid rgba(110,107,255,.3); }
+.ph-now em { font: 800 10px var(--m); letter-spacing: .1em; font-style: normal; background: var(--indigo); padding: 3px 7px; border-radius: 5px; }
+.ph-now b { display: block; margin-top: 8px; font-size: 15px; }
+.ph-row { display: grid; grid-template-columns: 1fr 1.4fr 1fr; gap: 8px; }
+.ph-row button, .ph-3 { border: 1px solid #262C3B; background: #141821; color: var(--muted); border-radius: 16px; min-height: 64px; cursor: pointer; font: 700 11px var(--f); display: grid; place-items: center; }
+.ph-row .pp { background: linear-gradient(180deg, #5B95FF, #2F6BF0); border: 0; color: #fff; font: 800 12px var(--m); letter-spacing: .1em; }
+.ph-row .pp.on { background: linear-gradient(180deg, #FF6B78, #E5484D); }
+.ph-3 { min-height: 48px; display: flex; gap: 10px; justify-content: center; color: #9CC2FF; border-color: rgba(77,141,255,.45); background: rgba(77,141,255,.1); font-size: 12px; }
+.ph-3 b { font-size: 15px; letter-spacing: .1em; }
+.ph-3.on { background: #4D8DFF; color: #fff; }
+.ph-sp { display: flex; align-items: center; gap: 8px; border-radius: 14px; background: #141821; border: 1px solid #262C3B; padding: 8px; }
+.ph-sp button { width: 44px; height: 40px; border-radius: 10px; border: 0; background: #1C2130; color: #fff; font-size: 20px; cursor: pointer; }
+.ph-sp b { flex: 1; text-align: center; font: 700 17px var(--m); }
+@media (max-width: 860px) { .try { grid-template-columns: 1fr; } .tp-view { height: 240px; } .tp-bar .sh, .tp-bar .r { display: none; } .tp-bar .badge { white-space: nowrap; } .spd label { display: none; } }
+
+/* Funciones */
+.feats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 48px; }
+.ft { padding: 22px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); min-width: 0; }
+.ft .fi { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; margin-bottom: 14px; color: #fff; background: var(--c); box-shadow: 0 10px 24px -8px var(--c); }
+.ft .fi .ico { width: 20px; height: 20px; }
+.ft h3 { font-size: 18px; margin-bottom: 6px; letter-spacing: -.02em; }
+.ft p { font-size: 14.5px; color: var(--muted); }
+.ft code { font: 600 12.5px var(--m); color: var(--ice); background: rgba(110,107,255,.12); padding: 1px 6px; border-radius: 5px; }
+@media (max-width: 900px) { .feats { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .feats { grid-template-columns: 1fr; } }
+
+/* Comparación con interruptor */
+.cmp-sw { display: inline-flex; padding: 5px; border-radius: 999px; background: var(--ink-2); border: 1px solid var(--line-2); margin-top: 30px; }
+.cmp-sw button { border: 0; background: none; color: var(--dim); font: 700 14.5px var(--f); padding: 11px 20px; border-radius: 999px; cursor: pointer; transition: all .25s; }
+.cmp-sw button.on { background: var(--text); color: var(--ink); }
+.cmp-sw button.on.yes { background: linear-gradient(180deg, #8C89FF, var(--indigo)); color: #fff; }
+.cmp { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 30px; text-align: left; }
+.cmp div { display: flex; gap: 14px; align-items: flex-start; padding: 18px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); transition: all .35s; }
+.cmp i { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-weight: 800; font-size: 13px; }
+.cmp.no i { background: rgba(255,77,94,.16); color: var(--rec); }
+.cmp.yes i { background: var(--green); color: #052a1b; }
+.cmp.yes div { border-color: rgba(110,107,255,.3); }
+.cmp b { display: block; font-size: 16px; } .cmp span { color: var(--muted); font-size: 14.5px; }
+@media (max-width: 760px) { .cmp { grid-template-columns: 1fr; } }
+
+/* La cuenta: boleta que se imprime */
+.calc { display: grid; grid-template-columns: 1fr 380px; gap: clamp(24px, 4vw, 56px); margin-top: 48px; align-items: start; }
+.sl { margin-bottom: 26px; }
+.sl label { display: flex; justify-content: space-between; font-weight: 700; margin-bottom: 10px; }
+.sl label output { font: 700 15px var(--m); color: var(--ice); }
+.sl input { width: 100%; accent-color: var(--indigo); }
+.sl small { display: block; color: var(--dim); font-size: 13px; margin-top: 4px; }
+.receipt { position: relative; background: var(--paper); color: var(--paper-ink); border-radius: 6px 6px 0 0; padding: 24px 24px 30px; font-family: var(--m); font-size: 13.5px; box-shadow: 0 40px 80px -30px #000; transform-origin: top; }
+.receipt::after { content: ""; position: absolute; left: 0; right: 0; bottom: -12px; height: 12px; background: linear-gradient(-45deg, transparent 8px, var(--paper) 0) 0 0 / 16px 12px, linear-gradient(45deg, transparent 8px, var(--paper) 0) 0 0 / 16px 12px; }
+.receipt h3 { font: 800 15px var(--m); letter-spacing: .1em; text-align: center; margin-bottom: 4px; }
+.receipt .sub { text-align: center; color: #6A6E86; font-size: 11.5px; margin-bottom: 16px; }
+.rl { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px dashed #CFCBC0; }
+.rl b { font-variant-numeric: tabular-nums; }
+.rtot { margin-top: 14px; padding: 14px; border-radius: 6px; background: var(--paper-ink); color: #fff; text-align: center; }
+.rtot small { display: block; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; opacity: .7; }
+.rtot b { font: 800 34px var(--f); letter-spacing: -.03em; color: #FF8A95; }
+.rnote { margin-top: 12px; font-size: 12px; color: #4A4E66; text-align: center; }
+.print { animation: print .7s steps(9) both; }
+@keyframes print { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 -20px 0); } }
+@media (max-width: 860px) { .calc { grid-template-columns: 1fr; } }
+
+/* Descarga final */
+.final { position: relative; overflow: hidden; border-radius: 30px; padding: clamp(36px, 6vw, 70px) clamp(20px, 5vw, 60px); text-align: center; background: radial-gradient(600px 300px at 50% 0%, rgba(159,196,255,.35), transparent 70%), linear-gradient(160deg, #6E6BFF, #3D4BD8 55%, #1E2370); }
+.final h2 { font-size: clamp(34px, 1.6rem + 3vw, 60px); max-width: 16ch; margin-inline: auto; }
+.final .lede { color: rgba(255,255,255,.85); margin-top: 16px; }
+.final .hero-ctas { margin-top: 30px; }
+.final .btn-p { background: #fff; color: #23268C; box-shadow: 0 18px 40px -14px rgba(0,0,0,.6); }
+.final .btn-g { border-color: rgba(255,255,255,.35); background: rgba(255,255,255,.08); }
+.seal { position: absolute; right: clamp(10px, 4vw, 50px); top: clamp(10px, 3vw, 34px); width: 116px; height: 116px; animation: spin 18s linear infinite; opacity: .9; }
+.seal text { font: 700 10.5px var(--m); letter-spacing: .26em; fill: #fff; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.inst { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 36px; text-align: left; }
+.inst div { padding: 18px; border-radius: 16px; background: rgba(7,8,15,.35); border: 1px solid rgba(255,255,255,.16); font-size: 14.5px; color: rgba(255,255,255,.9); }
+.inst b { display: flex; align-items: center; gap: 8px; font-size: 16px; margin-bottom: 6px; color: #fff; }
+.inst svg { width: 18px; height: 18px; }
+@media (max-width: 760px) { .inst { grid-template-columns: 1fr; } .seal { display: none; } }
+.mobnote { display: none; margin-top: 16px; font-size: 14.5px; color: rgba(255,255,255,.9); }
+.is-mobile .mobnote { display: block; }
+
+/* Preguntas */
+.faq { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 44px; align-items: start; }
+details { border-radius: 16px; background: var(--card); border: 1px solid var(--line); padding: 4px 20px; }
+summary { cursor: pointer; padding: 16px 0; font-weight: 700; font-size: 16.5px; list-style: none; display: flex; justify-content: space-between; gap: 14px; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; color: var(--ice); font-size: 22px; line-height: 1; }
+details[open] summary::after { content: "−"; }
+details p { color: var(--muted); font-size: 15px; padding-bottom: 18px; }
+@media (max-width: 860px) { .faq { grid-template-columns: 1fr; } }
+
+footer { padding-block: 40px 120px; border-top: 1px solid var(--line); color: var(--dim); font-size: 13.5px; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; }
+footer a:hover { color: var(--text); }
+
+/* Barra fija inferior */
+.bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; padding: 10px max(16px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); background: rgba(7,8,15,.86); backdrop-filter: blur(14px); border-top: 1px solid var(--line); transform: translateY(110%); transition: transform .4s cubic-bezier(.2,.9,.2,1); }
+.bar.show { transform: none; }
+.bar .wrap { display: flex; align-items: center; gap: 14px; padding: 0; }
+.bar p { font-size: 14.5px; color: var(--muted); min-width: 0; }
+.bar p b { color: var(--text); }
+.bar .btn { margin-left: auto; height: 44px; }
+@media (max-width: 560px) { .bar p { display: none; } .bar .btn { width: 100%; } }
+
+
+/* Guía de uso con pestañas Windows / Mac */
+.os-sw { display: inline-flex; padding: 5px; border-radius: 999px; background: var(--ink-3); border: 1px solid var(--line-2); margin-top: 26px; }
+.os-sw button { display: inline-flex; align-items: center; gap: 8px; border: 0; background: none; color: var(--dim); font: 700 15px var(--f); padding: 11px 22px; border-radius: 999px; cursor: pointer; transition: all .25s; }
+.os-sw button svg { width: 18px; height: 18px; }
+.os-sw button.on { background: var(--text); color: var(--ink); }
+.os-note { margin-top: 12px; font-size: 13.5px; color: var(--dim); }
+.guide { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 40px; counter-reset: g; }
+.gs { position: relative; padding: 24px 24px 22px 76px; border-radius: 20px; background: var(--card); border: 1px solid var(--line); min-width: 0; }
+.gs::before { counter-increment: g; content: counter(g); position: absolute; left: 22px; top: 22px; width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; font: 700 15px var(--m); color: #fff; background: linear-gradient(180deg, #8C89FF, var(--indigo)); box-shadow: 0 8px 20px -8px rgba(110,107,255,.9); }
+.gs h3 { font-size: 20px; margin-bottom: 8px; letter-spacing: -.02em; }
+.gs p, .gs li { color: var(--muted); font-size: 15px; }
+.gs ol, .gs ul { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 6px; }
+.gs b, .gs strong { color: var(--text); }
+.gs .tip { margin-top: 12px; padding: 10px 12px; border-radius: 12px; font-size: 13.5px; color: var(--muted); background: rgba(110,107,255,.08); border: 1px solid rgba(110,107,255,.22); }
+.gs .tip.warn { background: rgba(255,181,71,.08); border-color: rgba(255,181,71,.3); color: #FFD9A0; }
+.gs.wide { grid-column: span 2; }
+.gs kbd, .keys kbd { font: 600 12.5px var(--m); padding: 2px 7px; border-radius: 6px; background: var(--ink-3); border: 1px solid var(--line-2); border-bottom-width: 2px; color: var(--text); white-space: nowrap; }
+.mk { display: grid; grid-template-columns: auto 1fr; gap: 8px 14px; margin-top: 12px; align-items: center; font-size: 14.5px; color: var(--muted); }
+.mk code { font: 600 13px var(--m); color: var(--ice); background: rgba(110,107,255,.12); padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
+.keys { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 14.5px; }
+.keys td { padding: 9px 4px; border-top: 1px solid var(--line); color: var(--muted); }
+.keys td:last-child { text-align: right; white-space: nowrap; }
+.keys-wrap { overflow-x: auto; }
+html.os-mac .w, html:not(.os-mac) .m { display: none !important; }
+@media (max-width: 860px) { .guide { grid-template-columns: 1fr; } .gs.wide { grid-column: auto; } .gs { padding: 20px 18px 20px 66px; } .gs::before { left: 16px; top: 18px; } }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-win" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M3 5.4 10.4 4.4v7H3zM11.4 4.2 21 3v8.4h-9.6zM3 12.4h7.4v7.2L3 18.6zM11.4 12.4H21V21l-9.6-1.3z"/></symbol>
+    <symbol id="i-apple" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8 1.6 0 2 .8 3.4.8 1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9-.1 0-2.7-1-2.7-4.1zM13.9 5c.7-.9 1.2-2 1.1-3.2-1 0-2.3.7-3 1.6-.7.8-1.2 2-1.1 3.1 1.2.1 2.3-.6 3-1.5z"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 19h14"/></symbol>
+    <symbol id="i-slides" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="12" rx="2"/><path d="M8 21h8M12 17v4"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></symbol>
+    <symbol id="i-cursor" viewBox="0 0 24 24"><path d="M6 4l12 6.5-5.2 1.6L10.5 17z"/><path d="m13 13 4.5 5"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="11" rx="2"/><path d="M7 11h.01M11 11h.01M15 11h.01M8 14.5h8"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M7 3.5h7l4 4v13H7z"/><path d="M10 12h6M10 16h6"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.6 3.5 5.4 3.5 8.5s-1.1 5.9-3.5 8.5c-2.4-2.6-3.5-5.4-3.5-8.5S9.6 6.1 12 3.5z"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5.5" y="10.5" width="13" height="9.5" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3.5 5 6v5.5c0 4.3 2.9 7.7 7 9 4.1-1.3 7-4.7 7-9V6z"/><path d="m9 12 2.2 2.2L15.5 10"/></symbol>
+    <symbol id="i-timer" viewBox="0 0 24 24"><circle cx="12" cy="13" r="7.5"/><path d="M12 9v4l2.5 2M9.5 2.5h5"/></symbol>
+  </defs>
+</svg>
+
+<div class="cur" id="cur"></div>
+
+<nav class="nav" id="nav">
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="img/icon.png" alt="" width="32" height="32">PromptFlow</a>
+    <div class="nav-links">
+      <a href="#prueba">La prueba</a>
+      <a href="#para-quien">Para quién</a>
+      <a href="#guia">Guía de uso</a>
+      <a href="#faq">Preguntas</a>
+    </div>
+    <div class="nav-right"><a class="btn btn-p btn-sm mag dl-main" href="#descargar">Descargar gratis</a></div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="dots2"></div><div class="dots"></div><div class="glow"></div>
+  <canvas id="motes" aria-hidden="true"></canvas>
+  <div class="fl a"><img src="img/3d/curso.webp" alt="" width="100" height="100"></div>
+  <div class="fl b"><img src="img/3d/comunidad.webp" alt="" width="100" height="100"></div>
+  <div class="fl c"><img src="img/3d/presentacion.webp" alt="" width="100" height="100"></div>
+  <div class="fl d"><img src="img/3d/micro.webp" alt="" width="100" height="100"></div>
+  <div class="fl e"><img src="img/3d/invisible.webp" alt="" width="68" height="68"></div>
+  <div class="fl f"><img src="img/3d/celular.webp" alt="" width="66" height="66"></div>
+
+  <div class="wrap">
+    <div class="hero-c">
+      <span class="chip"><span class="ok">✓</span><span><b>Probado en Windows 11:</b> Loom y OBS no graban el guion</span></span>
+      <h1>Graba tu <span class="rot" id="rot"><span class="on"><i>curso</i></span><span><i>clase</i></span><span><i>live de Skool</i></span><span><i>presentación</i></span><span><i>VSL</i></span></span><br>sin trabarte.</h1>
+      <p class="lede">El teleprompter que flota sobre tus diapositivas. Tú lees tu guion mirando a cámara; tus alumnos solo ven tu clase. Loom y OBS no lo graban.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-p mag" id="dlHero" href="#descargar"><svg class="ico"><use href="#i-down"/></svg><span class="two"><small id="dlHeroSub">Gratis</small>Descargar PromptFlow</span></a>
+        <a class="btn btn-g mag" href="#prueba">Ver la prueba</a>
+      </div>
+      <div class="meta"><span>Windows y Mac (Apple Silicon e Intel)</span><span>Español e inglés</span><span>Sin internet ni cuentas</span><span>Gratis</span></div>
+    </div>
+
+    <div class="stage">
+      <div class="monitor">
+        <div class="screen" id="hscreen" style="background-image:url(img/see.webp)">
+          <video id="hvid" muted loop playsinline preload="none" poster="img/see.webp" data-src="video/see.mp4"></video>
+          <div class="lens" id="lens"><b>LO QUE GRABA LOOM</b></div>
+        </div>
+      </div>
+      <div class="cap-row">
+        <span><i style="background:var(--indigo)"></i>Fuera del círculo: lo que ves tú en tu pantalla</span>
+        <span><i style="background:var(--rec)"></i>Dentro del círculo: lo que queda grabado</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="logos" aria-label="Funciona con">
+  <p>Funciona con lo que ya usas</p>
+  <div class="mq" id="mq"></div>
+</div>
+
+<section class="ana center">
+  <div class="wrap">
+    <span class="eyebrow">La idea</span>
+    <h2>Un apuntador de teatro que <span class="squig">nadie más ve<svg viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 8 C 40 2, 80 12, 120 6 S 180 4, 198 7"/></svg></span>.</h2>
+    <p class="lede">Escribes tu clase una vez. Al grabar, el texto pasa frente a ti, justo debajo de la cámara, al ritmo que elijas. Tus alumnos ven a alguien seguro que mira a cámara, no a alguien que busca la frase en un papel.</p>
+  </div>
+</section>
+
+<section id="prueba" style="padding-top:0">
+  <div class="wrap">
+    <div class="center">
+      <span class="eyebrow">La prueba</span>
+      <h2>Tú lo ves. <span class="hl">La grabación, no.</span></h2>
+      <p class="lede" style="margin-top:18px">Dos capturas reales de la misma pantalla, hechas al mismo tiempo en un computador con Windows 11. A la izquierda, lo que ve quien presenta. A la derecha, lo que captura un grabador de pantalla completa.</p>
+    </div>
+    <div class="proof">
+      <div class="pv">
+        <div class="pv-head"><span class="dot" style="background:var(--indigo)"></span>Lo que ves tú<small>Tu pantalla</small></div>
+        <div class="screen" style="background-image:url(img/see.webp)"><video class="lazyv" muted loop playsinline preload="none" poster="img/see.webp" data-src="video/see.mp4"></video></div>
+      </div>
+      <div class="pv rec">
+        <div class="pv-head"><span class="dot" style="background:var(--rec)"></span>Lo que graba Loom / OBS<small>La grabación</small></div>
+        <div class="screen" style="background-image:url(img/rec.webp)"><span class="recb">REC</span><video class="lazyv" muted loop playsinline preload="none" poster="img/rec.webp" data-src="video/rec.mp4"></video></div>
+      </div>
+    </div>
+    <div class="proof-note">
+      <img src="img/3d/invisible.webp" alt="" width="54" height="54" loading="lazy">
+      <div><b>No tienes que creernos: compruébalo en tu computador.</b><p>La app trae el botón <b>Probar invisibilidad ahora</b>. En un segundo captura tu pantalla igual que un grabador y te dice si el teleprompter aparece o no.</p></div>
+    </div>
+    <div class="works">
+      <div><b>Loom</b>Pantalla completa, ventana o región · Windows 10 y 11</div>
+      <div><b>OBS Studio</b>"Captura de pantalla" · Windows 10 y 11</div>
+      <div><b>Zoom, Meet y Teams</b>Al compartir pantalla · Windows</div>
+      <div class="mac"><b>Mac</b>Depende de la versión de macOS. La prueba integrada te lo dice.</div>
+    </div>
+  </div>
+</section>
+
+<section id="para-quien" style="background:var(--ink-2)">
+  <div class="wrap">
+    <span class="eyebrow">Para quién</span>
+    <h2>Hecho para quien <span class="hl">enseña</span> frente a una cámara.</h2>
+    <div class="bento">
+      <div class="bc s3 course">
+        <img class="i3" src="img/3d/curso.webp" alt="" width="64" height="64" loading="lazy">
+        <h3>Cursos online</h3>
+        <p>Graba módulos completos de una sola toma. Cada diapositiva tiene su parte del guion.</p>
+        <ul><li>Un guion por lección, ordenado por carpetas</li><li>Importa lo que ya escribiste en Word o PDF</li><li>Duración estimada de cada video</li></ul>
+      </div>
+      <div class="bc s3 skool">
+        <img class="i3" src="img/3d/comunidad.webp" alt="" width="64" height="64" loading="lazy">
+        <h3>Comunidades Skool</h3>
+        <p>Lecciones del classroom, videos de bienvenida y lives semanales con tu guion delante.</p>
+        <div class="mini-sk">
+          <div><span class="n">0</span>Bienvenida a la comunidad<em>GRABADO</em></div>
+          <div><span class="n">1</span>Módulo 1 · Tu primer resultado<em>GRABADO</em></div>
+          <div><span class="n">2</span>Live semanal · Preguntas<em>HOY</em></div>
+        </div>
+      </div>
+      <div class="bc s2">
+        <img class="i3" src="img/3d/presentacion.webp" alt="" width="64" height="64" loading="lazy">
+        <h3>Presentaciones y webinars</h3>
+        <p>Encima de PowerPoint, Google Slides, Canva o Keynote. Los clics pasan a través del teleprompter.</p>
+      </div>
+      <div class="bc s2">
+        <img class="i3" src="img/3d/micro.webp" alt="" width="64" height="64" loading="lazy">
+        <h3>VSL y videos de venta</h3>
+        <p>Cada palabra del guion en su lugar, sin perder la mirada a cámara que genera confianza.</p>
+      </div>
+      <div class="bc s2">
+        <img class="i3" src="img/3d/celular.webp" alt="" width="64" height="64" loading="lazy">
+        <h3>Profesores y clases en vivo</h3>
+        <p>Pausa, retrocede o salta de diapositiva desde el celular mientras explicas.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="como">
+  <div class="wrap">
+    <span class="eyebrow">Cómo funciona</span>
+    <h2>De tu guion a la grabación <span class="hl">en cuatro pasos</span>.</h2>
+    <div class="how">
+      <div class="steps" id="steps">
+        <i class="rail" id="rail"></i>
+        <button class="st on" type="button"><span class="n">1</span><span><h3>Escribe o importa tu guion</h3><p>Pega tu texto o importa Word, PDF o TXT. Escribe <kbd>[Diapositiva 2]</kbd> para dividirlo y <kbd>[PAUSA]</kbd> para que se detenga solo.</p></span></button>
+        <button class="st" type="button"><span class="n">2</span><span><h3>Ponlo junto a la cámara</h3><p>La ventana flota arriba al centro, justo bajo tu webcam. Elige tamaño, transparencia y velocidad.</p></span></button>
+        <button class="st" type="button"><span class="n">3</span><span><h3>Presiona 3·2·1 y graba</h3><p>INICIAR arranca al instante; el botón <kbd>3</kbd> cuenta 3, 2, 1. Graba con Loom u OBS como siempre.</p></span></button>
+        <button class="st" type="button"><span class="n">4</span><span><h3>Contrólalo sin tocar el mouse</h3><p>Atajos de teclado globales o tu celular como control remoto, escaneando un código QR.</p></span></button>
+      </div>
+      <div class="mockbox">
+        <figure class="mock on" style="margin:0"><img src="img/app-main.webp" alt="Ventana principal de PromptFlow con un guion de clase dividido por diapositivas" width="900" height="558" loading="lazy"><figcaption>Tu biblioteca de guiones, con cada diapositiva como un botón.</figcaption></figure>
+        <figure class="mock" style="margin:0"><img src="img/app-prompter.webp" alt="Ventana flotante del teleprompter" width="900" height="363" loading="lazy"><figcaption>La ventana flotante, con la línea de lectura resaltada.</figcaption></figure>
+        <figure class="mock" style="margin:0"><img src="img/app-countdown.webp" alt="Cuenta atrás 3, 2, 1 en el teleprompter" width="900" height="363" loading="lazy"><figcaption>La cuenta atrás te da tiempo de mirar a cámara antes de empezar.</figcaption></figure>
+        <figure class="mock" style="margin:0"><img src="img/app-remote.webp" alt="Control remoto de PromptFlow en el celular" width="380" height="726" loading="lazy" style="max-width:300px;margin-inline:auto"><figcaption style="text-align:center">El control del celular: play, 3·2·1, velocidad y diapositivas.</figcaption></figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="demo" style="background:var(--ink-2)">
+  <div class="wrap">
+    <div class="center">
+      <span class="eyebrow">Pruébalo aquí</span>
+      <h2>Toca <span class="hl">3·2·1</span> y lee en voz alta.</h2>
+      <p class="lede" style="margin-top:18px">Así se siente leer con PromptFlow. Usa los botones del teleprompter o el celular de la derecha: los dos lo controlan.</p>
+    </div>
+    <div class="try">
+      <div class="tp">
+        <div class="tp-bar"><span class="badge" id="tpBadge">DIAPOSITIVA 01 / 03</span><span class="e">E <span id="tpE">00:00</span></span><span class="r">R <span id="tpR">00:40</span></span><span class="sh"><svg class="ico" style="width:14px;height:14px"><use href="#i-shield"/></svg>Oculto en grabaciones</span></div>
+        <div class="tp-view" id="tpView">
+          <div class="tp-band"></div>
+          <div class="tp-txt" id="tpTxt">
+            <div class="sec" data-s="0">Diapositiva 01 · Bienvenida</div>
+            <p>Hola, bienvenido a la lección tres de tu curso.</p>
+            <p>Hoy vas a grabar tu primera clase completa, sin repetir tomas.</p>
+            <p><span class="cue">Mirar a cámara</span></p>
+            <div class="sec" data-s="1">Diapositiva 02 · Una sola idea</div>
+            <p>La regla número uno es simple: una sola idea por lección.</p>
+            <p>Si tu alumno puede explicarla con sus palabras, la clase funcionó.</p>
+            <div class="sec" data-s="2">Diapositiva 03 · La tarea</div>
+            <p>Cierra siempre con una tarea concreta que puedan hacer hoy.</p>
+            <p>Y compártela en la comunidad. Nos vemos en la próxima lección.</p>
+          </div>
+          <div class="tp-cd" id="tpCd" hidden></div>
+        </div>
+        <div class="tp-ctl">
+          <button class="b3" id="tp3" type="button" aria-label="Iniciar con cuenta atrás 3, 2, 1">3</button>
+          <button class="bgo" id="tpGo" type="button">▶ INICIAR</button>
+          <div class="spd"><label for="tpSpd">Velocidad</label><input id="tpSpd" type="range" min="1" max="8" step="0.5" value="3"><b id="tpSpdV">3x</b></div>
+        </div>
+      </div>
+      <div class="phone" aria-label="Control remoto en el celular">
+        <div class="phone-in">
+          <div class="ph-top"><img src="img/icon.png" alt="" width="26" height="26">PromptFlow<span>Conectado</span></div>
+          <div class="ph-now"><em id="phBadge">DIAPOSITIVA 01 / 03</em><b>Lección 3 · Tu primera clase</b></div>
+          <div class="ph-row">
+            <button type="button" id="phPrev">‹<br>Anterior</button>
+            <button type="button" class="pp" id="phGo">INICIAR</button>
+            <button type="button" id="phNext">›<br>Siguiente</button>
+          </div>
+          <button class="ph-3" type="button" id="ph3"><b>3 · 2 · 1</b>Iniciar con cuenta atrás</button>
+          <div class="ph-sp"><button type="button" id="phSlow" aria-label="Más lento">−</button><b id="phSpd">3x</b><button type="button" id="phFast" aria-label="Más rápido">+</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section id="guia">
+  <div class="wrap">
+    <div class="center">
+      <span class="eyebrow">Guía de uso</span>
+      <h2>Cómo usar PromptFlow, <span class="hl">paso a paso</span>.</h2>
+      <p class="lede" style="margin-top:18px">Funciona en Windows y en Mac. Elige tu computador y sigue los pasos: en 5 minutos estás grabando.</p>
+      <div class="os-sw" role="tablist" aria-label="Elige tu computador">
+        <button type="button" id="osWin" role="tab"><svg class="ico"><use href="#i-win"/></svg>Windows</button>
+        <button type="button" id="osMac" role="tab"><svg class="ico"><use href="#i-apple"/></svg>Mac</button>
+      </div>
+      <p class="os-note" id="osNote"></p>
+    </div>
+
+    <div class="guide">
+      <div class="gs">
+        <h3>Descarga e instala</h3>
+        <div class="w">
+          <ol>
+            <li>Descarga <b>PromptFlow-Windows.exe</b> y ábrelo.</li>
+            <li>Si aparece "Windows protegió su PC", pulsa <b>Más información → Ejecutar de todas formas</b>.</li>
+            <li>Elige la carpeta y termina. Queda un acceso directo en tu escritorio.</li>
+          </ol>
+          <p class="tip">Para actualizar, cierra PromptFlow e instala la versión nueva encima. Tus guiones se mantienen.</p>
+        </div>
+        <div class="m">
+          <ol>
+            <li>Descarga <b>PromptFlow-Mac.dmg</b> y ábrelo.</li>
+            <li>Arrastra <b>PromptFlow</b> a la carpeta <b>Aplicaciones</b>.</li>
+            <li>La primera vez, si macOS dice que no puede verificarla: <b>Ajustes del Sistema → Privacidad y seguridad → Abrir de todas formas</b>.</li>
+          </ol>
+          <p class="tip">Funciona en Mac con Apple Silicon (M1, M2, M3, M4) y con procesador Intel.</p>
+        </div>
+      </div>
+
+      <div class="gs">
+        <h3>Escribe o importa tu guion</h3>
+        <p>Pulsa <b>Nuevo guion</b> y escribe, o usa <b>Importar</b> para traer un Word, PDF, TXT o Markdown. Se guarda solo mientras escribes. Marca tu texto así:</p>
+        <div class="mk">
+          <code>[Diapositiva 2] Título</code><span>Empieza una diapositiva nueva</span>
+          <code>[PAUSA]</code><span>El texto se detiene solo ahí</span>
+          <code>[mirar a cámara]</code><span>Indicación que no se lee</span>
+          <code>**texto**</code><span>Resalta una frase</span>
+        </div>
+      </div>
+
+      <div class="gs">
+        <h3>Abre el teleprompter</h3>
+        <p>Pulsa <b>Abrir teleprompter</b> <span class="w">(o <kbd>Ctrl</kbd> + <kbd>Enter</kbd>)</span><span class="m">(o <kbd>⌘</kbd> + <kbd>Enter</kbd>)</span>. Aparece una ventana flotante que queda siempre encima de tus diapositivas.</p>
+        <ul>
+          <li><b>Moverla:</b> arrastra la barra superior.</li>
+          <li><b>Tamaño:</b> arrastra la esquina inferior derecha.</li>
+          <li><b>Junto a la cámara:</b> pestaña <b>Ventana → Posición rápida</b>.</li>
+          <li><b>—</b> la minimiza y <b>✕</b> la cierra.</li>
+        </ul>
+      </div>
+
+      <div class="gs">
+        <h3>Ajusta cómo lees</h3>
+        <p>En la pestaña <b>Lectura</b> eliges velocidad, tamaño de letra, interlineado, ancho, color y dónde va la línea de lectura. La vista previa muestra el resultado al instante.</p>
+        <p class="tip">Consejo: deja la línea de lectura cerca de 30 % y el teleprompter pegado bajo la cámara. Así tus ojos casi no se mueven.</p>
+      </div>
+
+      <div class="gs">
+        <h3>Configura tu grabador</h3>
+        <div class="w">
+          <ul>
+            <li><b>Loom:</b> graba con "Pantalla completa", "Ventana" o "Región". El teleprompter no aparece.</li>
+            <li><b>OBS Studio:</b> usa "Captura de pantalla" o "Captura de ventana". El teleprompter no aparece.</li>
+            <li><b>Zoom, Meet, Teams y lives de Skool:</b> comparte tu pantalla normalmente.</li>
+          </ul>
+          <p class="tip">Requiere Windows 10 versión 2004 o superior, o Windows 11.</p>
+        </div>
+        <div class="m">
+          <ul>
+            <li><b>Loom:</b> elige <b>"Ventana"</b> y selecciona tu presentación (Keynote, PowerPoint o el navegador con Slides o Canva).</li>
+            <li><b>OBS Studio:</b> usa <b>"Captura de ventana"</b> o <b>"Captura de aplicación"</b> de tu presentación, en lugar de "Captura de pantalla".</li>
+            <li><b>Con dos monitores:</b> presentación en uno y teleprompter en el otro, y grabas solo el de la presentación.</li>
+          </ul>
+          <p class="tip warn">En Mac, algunas versiones recientes de macOS dejan que los grabadores de pantalla completa vean el teleprompter. Grabando solo la ventana de tu presentación, nunca aparece.</p>
+        </div>
+      </div>
+
+      <div class="gs">
+        <h3>Inicia y graba</h3>
+        <ul>
+          <li><b>INICIAR</b> arranca al instante.</li>
+          <li>El botón <b>3</b>, a su izquierda, cuenta 3, 2, 1 y arranca: te da tiempo de mirar a cámara.</li>
+          <li>Cambia la velocidad con el deslizador o con las flechas mientras lees.</li>
+          <li>Salta de diapositiva con <b>‹ ›</b> o con los botones de diapositiva de la ventana principal.</li>
+        </ul>
+      </div>
+
+      <div class="gs wide">
+        <h3>Atajos de teclado</h3>
+        <p>Funcionan aunque estés dentro de PowerPoint, Keynote, Slides o Canva.</p>
+        <div class="keys-wrap">
+          <table class="keys">
+            <tr><td>Iniciar con cuenta atrás 3·2·1 / pausar</td><td><span class="w"><kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>P</kbd></span><span class="m"><kbd>⌘</kbd> <kbd>⌥</kbd> <kbd>P</kbd></span></td></tr>
+            <tr><td>Iniciar al instante / pausar</td><td><span class="w"><kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>I</kbd></span><span class="m"><kbd>⌘</kbd> <kbd>⌥</kbd> <kbd>I</kbd></span></td></tr>
+            <tr><td>Más rápido / más lento</td><td><span class="w"><kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>↑</kbd> / <kbd>↓</kbd></span><span class="m"><kbd>⌘</kbd> <kbd>⌥</kbd> <kbd>↑</kbd> / <kbd>↓</kbd></span></td></tr>
+            <tr><td>Retroceder / adelantar unas líneas</td><td><span class="w"><kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>B</kbd> / <kbd>F</kbd></span><span class="m"><kbd>⌘</kbd> <kbd>⌥</kbd> <kbd>B</kbd> / <kbd>F</kbd></span></td></tr>
+            <tr><td>Siguiente / anterior diapositiva</td><td><span class="w"><kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>N</kbd> / <kbd>V</kbd></span><span class="m"><kbd>⌘</kbd> <kbd>⌥</kbd> <kbd>N</kbd> / <kbd>V</kbd></span></td></tr>
+            <tr><td>Click-through: los clics pasan a tu presentación</td><td><span class="w"><kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>X</kbd></span><span class="m"><kbd>⌘</kbd> <kbd>⌥</kbd> <kbd>X</kbd></span></td></tr>
+            <tr><td>Mostrar / ocultar el teleprompter</td><td><span class="w"><kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>H</kbd></span><span class="m"><kbd>⌘</kbd> <kbd>⌥</kbd> <kbd>H</kbd></span></td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="gs">
+        <h3>Comprueba que no se grabe</h3>
+        <p>Antes de un video importante: pestaña <b>Privacidad → Probar invisibilidad ahora</b>. En un segundo te dice si el teleprompter aparece en las grabaciones de tu computador.</p>
+        <p class="tip m">La primera vez, macOS pide el permiso de <b>Grabación de pantalla</b>: Ajustes del Sistema → Privacidad y seguridad → Grabación de pantalla → activa PromptFlow y vuelve a abrir la app.</p>
+        <p class="tip w">Verde: Loom y OBS no lo ven. Si sale rojo, revisa que "Invisible en la grabación" esté activado.</p>
+      </div>
+
+      <div class="gs">
+        <h3>Usa tu celular como control</h3>
+        <ol>
+          <li>Pestaña <b>Celular → Activar control remoto</b>.</li>
+          <li>Escanea el código QR con la cámara del teléfono. Debe estar en la <b>misma red Wi-Fi</b>.</li>
+          <li>Pausa, usa 3·2·1, cambia la velocidad o salta de diapositiva desde el teléfono.</li>
+        </ol>
+        <p class="tip w">Si Windows pregunta por el firewall, permite el acceso en <b>redes privadas</b>.</p>
+        <p class="tip m">Si macOS pregunta si PromptFlow puede aceptar conexiones entrantes, pulsa <b>Permitir</b>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="funciones">
+  <div class="wrap">
+    <span class="eyebrow">Todo lo que incluye</span>
+    <h2>Pensado para grabar, <span class="hl">no para estorbar</span>.</h2>
+    <div class="feats">
+      <div class="ft"><span class="fi" style="--c:#6E6BFF"><svg class="ico"><use href="#i-slides"/></svg></span><h3>Guion por diapositiva</h3><p>Divide con <code>[Diapositiva 1]</code> y salta a cualquier sección con un clic, un atajo o el celular.</p></div>
+      <div class="ft"><span class="fi" style="--c:#FF8A3D"><svg class="ico"><use href="#i-pause"/></svg></span><h3>Pausas automáticas</h3><p>Escribe <code>[PAUSA]</code> donde quieras respirar, mostrar algo o hacer una pregunta.</p></div>
+      <div class="ft"><span class="fi" style="--c:#22B35E"><svg class="ico"><use href="#i-cursor"/></svg></span><h3>Click-through</h3><p>Los clics atraviesan el teleprompter y llegan a tus diapositivas. Nada se interpone.</p></div>
+      <div class="ft"><span class="fi" style="--c:#3D7BFF"><svg class="ico"><use href="#i-key"/></svg></span><h3>Atajos globales</h3><p>Inicia, pausa o acelera desde el teclado aunque estés dentro de PowerPoint o Canva.</p></div>
+      <div class="ft"><span class="fi" style="--c:#A855F7"><svg class="ico"><use href="#i-doc"/></svg></span><h3>Importa Word y PDF</h3><p>Trae tus guiones tal como los escribiste. También TXT y Markdown.</p></div>
+      <div class="ft"><span class="fi" style="--c:#14B8A6"><svg class="ico"><use href="#i-timer"/></svg></span><h3>Tiempos a la vista</h3><p>Tiempo transcurrido y restante, como los teleprompters de estudio. Sabes cuánto dura tu clase.</p></div>
+      <div class="ft"><span class="fi" style="--c:#FF4D5E"><svg class="ico"><use href="#i-shield"/></svg></span><h3>Invisible en la grabación</h3><p>Excluido de las capturas de pantalla en Windows 10 y 11. Con prueba integrada.</p></div>
+      <div class="ft"><span class="fi" style="--c:#F5A524"><svg class="ico"><use href="#i-globe"/></svg></span><h3>Español e inglés</h3><p>Cambia el idioma de toda la app con un clic, también el control del celular.</p></div>
+      <div class="ft"><span class="fi" style="--c:#64748B"><svg class="ico"><use href="#i-lock"/></svg></span><h3>Privado y sin internet</h3><p>Tus guiones se guardan solo en tu computador. Sin cuentas y sin nube.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="center" style="background:var(--ink-2)">
+  <div class="wrap">
+    <span class="eyebrow">Antes y después</span>
+    <h2>Lo que cambia cuando <span class="hl">dejas el papel</span>.</h2>
+    <div class="cmp-sw" role="tablist"><button type="button" class="on" id="cmpNo">Leyendo de un papel</button><button type="button" id="cmpYes" class="yes">Con PromptFlow</button></div>
+    <div class="cmp no" id="cmp"></div>
+  </div>
+</section>
+
+<section id="cuenta">
+  <div class="wrap">
+    <span class="eyebrow">La cuenta</span>
+    <h2>¿Cuánto tiempo te cuesta <span class="hl">repetir tomas</span>?</h2>
+    <div class="calc">
+      <div>
+        <div class="sl"><label for="cV">Videos que grabas al mes <output id="oV">8</output></label><input id="cV" type="range" min="1" max="40" value="8"><small>Lecciones, lives, VSL, anuncios.</small></div>
+        <div class="sl"><label for="cR">Tomas que repites por video <output id="oR">3</output></label><input id="cR" type="range" min="0" max="12" value="3"><small>Cada vez que te trabaste o perdiste el hilo.</small></div>
+        <div class="sl"><label for="cM">Minutos que pierdes en cada repetición <output id="oM">6</output></label><input id="cM" type="range" min="1" max="30" value="6"><small>Volver a empezar, ordenar ideas, revisar la toma.</small></div>
+        <p class="lede" style="font-size:15.5px">Es tu propio cálculo: mueve las barras con tus números. PromptFlow no elimina todos los errores, pero leer el guion evita la mayoría de las tomas perdidas por olvidar qué venía.</p>
+      </div>
+      <div class="receipt" id="receipt">
+        <h3>TOMAS PERDIDAS</h3>
+        <div class="sub">Tu estudio de grabación · cálculo mensual</div>
+        <div class="rl"><span>Videos al mes</span><b id="rV">8</b></div>
+        <div class="rl"><span>Tomas repetidas</span><b id="rT">24</b></div>
+        <div class="rl"><span>Minutos perdidos al mes</span><b id="rM">144</b></div>
+        <div class="rl"><span>Horas perdidas al año</span><b id="rY">28,8 h</b></div>
+        <div class="rtot"><small>Eso equivale a</small><b id="rD">3,6 días</b><small>de trabajo de 8 horas al año</small></div>
+        <div class="rnote">Tiempo que podrías usar en crear la próxima clase.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="descargar" style="padding-top:0">
+  <div class="wrap">
+    <div class="final">
+      <svg class="seal" viewBox="0 0 120 120" aria-hidden="true"><defs><path id="circ" d="M60 60 m-46 0 a46 46 0 1 1 92 0 a46 46 0 1 1 -92 0"/></defs><text><textPath href="#circ">GRATIS · WINDOWS · MAC · SIN INTERNET ·</textPath></text><circle cx="60" cy="60" r="8" fill="#FF4D5E"/></svg>
+      <h2>Tu próxima clase, <span class="it">de una sola toma</span>.</h2>
+      <p class="lede" style="margin-inline:auto">Descarga PromptFlow gratis. Se instala en un minuto y funciona sin internet.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-p mag" id="dlWin" href="#"><svg class="ico"><use href="#i-win"/></svg><span class="two"><small>Descargar para</small>Windows</span></a>
+        <a class="btn btn-g mag" id="dlMac" href="#"><svg class="ico"><use href="#i-apple"/></svg><span class="two"><small>Descargar para</small>Mac</span></a>
+      </div>
+      <p class="mobnote">PromptFlow se instala en el computador. <button type="button" class="btn btn-g btn-sm" id="copyLink" style="margin-left:6px">Copiar enlace para abrirlo allí</button></p>
+      <div class="inst">
+        <div><b><svg class="ico"><use href="#i-win"/></svg>Windows</b>Abre <strong>PromptFlow-Windows.exe</strong>. Si aparece "Windows protegió su PC", pulsa <strong>Más información → Ejecutar de todas formas</strong>.</div>
+        <div><b><svg class="ico"><use href="#i-apple"/></svg>Mac</b>Abre el .dmg y arrastra PromptFlow a Aplicaciones. Si macOS lo bloquea: <strong>Ajustes del Sistema → Privacidad y seguridad → Abrir de todas formas</strong>.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq" style="padding-top:0">
+  <div class="wrap">
+    <span class="eyebrow">Preguntas</span>
+    <h2>Lo que suelen preguntar.</h2>
+    <div class="faq">
+      <div style="display:grid;gap:12px">
+        <details open><summary>¿De verdad Loom y OBS no graban el teleprompter?</summary><p>En Windows 10 (versión 2004 o superior) y Windows 11, sí: el sistema excluye la ventana de las capturas de pantalla. Las imágenes de esta página son capturas reales hechas así. Antes de un video importante pulsa "Probar invisibilidad ahora" en la app; tarda un segundo.</p></details>
+        <details><summary>¿Y en Mac?</summary><p>Las versiones recientes de macOS permiten que algunos grabadores ignoren esta protección. La prueba integrada te dice qué pasa en tu Mac. Si el teleprompter aparece, graba solo la ventana de tu presentación (Loom: "Ventana"; OBS: "Captura de ventana") o usa dos monitores.</p></details>
+        <details><summary>¿Sirve para los lives de Skool o Zoom?</summary><p>Sí. En Windows, al compartir pantalla en Zoom, Meet, Teams o el navegador, el teleprompter no se transmite. Puedes leer tu guion mientras das el live y controlarlo desde el celular.</p></details>
+      </div>
+      <div style="display:grid;gap:12px">
+        <details><summary>¿Tapa mis diapositivas?</summary><p>Lo pones donde quieras y con la transparencia que quieras. Con el modo click-through, los clics pasan a través del teleprompter y llegan a PowerPoint, Slides o Canva.</p></details>
+        <details><summary>¿Funciona en el celular?</summary><p>El teleprompter se instala en el computador, donde presentas y grabas. El celular funciona como control remoto: escaneas un código QR y listo.</p></details>
+        <details><summary>¿Cuánto cuesta? ¿Necesito una cuenta?</summary><p>Es gratis. No necesitas cuenta ni internet: tus guiones se guardan solo en tu computador.</p></details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <a class="brand" href="#top" style="font-size:15px"><img src="img/icon.png" alt="" width="24" height="24">PromptFlow</a>
+    <span>Teleprompter para quien enseña: cursos, comunidades y presentaciones.</span>
+    <a href="https://github.com/Sparckys/promtflow" target="_blank" rel="noopener" style="margin-left:auto">Código en GitHub</a>
+  </div>
+</footer>
+
+<div class="bar" id="bar">
+  <div class="wrap">
+    <p><b>PromptFlow</b> · Graba tu próxima clase sin trabarte. Gratis.</p>
+    <a class="btn btn-p mag" href="#descargar" id="barBtn">Descargar gratis</a>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+document.documentElement.classList.add("js");
+const CONFIG = { repo: "Sparckys/promtflow" };
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const fine = matchMedia("(pointer: fine)").matches;
+const dl = (f) => `https://github.com/${CONFIG.repo}/releases/latest/download/${f}`;
+
+// Descargas: detecta el sistema del visitante
+const ua = navigator.userAgent;
+const isMobile = (/Android|iPhone|iPad|iPod|Mobile/i.test(ua) && !/Macintosh/.test(ua)) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+const isMac = /Mac OS X|Macintosh/.test(ua) && !isMobile;
+$("#dlWin").href = dl("PromptFlow-Windows.exe");
+$("#dlMac").href = dl("PromptFlow-Mac.dmg");
+if (isMac) { $("#dlMac").classList.replace("btn-g", "btn-p"); $("#dlWin").classList.replace("btn-p", "btn-g"); $("#dlMac").after($("#dlWin")); }
+if (isMobile) document.body.classList.add("is-mobile");
+else {
+  $("#dlHero").href = dl(isMac ? "PromptFlow-Mac.dmg" : "PromptFlow-Windows.exe");
+  $("#dlHeroSub").textContent = isMac ? "Gratis · para Mac" : "Gratis · para Windows";
+}
+$("#copyLink").addEventListener("click", async (e) => {
+  try { await navigator.clipboard.writeText(location.href); e.target.textContent = "¡Enlace copiado!"; }
+  catch { e.target.textContent = location.href; }
+});
+
+
+// Guía: pestañas Windows / Mac (abre la del visitante)
+function setOS(mac) {
+  document.documentElement.classList.toggle("os-mac", mac);
+  $("#osMac").classList.toggle("on", mac); $("#osWin").classList.toggle("on", !mac);
+  $("#osMac").setAttribute("aria-selected", String(mac)); $("#osWin").setAttribute("aria-selected", String(!mac));
+}
+$("#osWin").onclick = () => setOS(false); $("#osMac").onclick = () => setOS(true);
+setOS(isMac);
+if (!isMobile) $("#osNote").textContent = isMac ? "Detectamos que usas Mac." : "Detectamos que usas Windows.";
+
+// Marquesina: herramientas con las que funciona
+const TOOLS = [["Loom", "#625DF5"], ["OBS Studio", "#9FA4B8"], ["Skool", "#F0562A"], ["Zoom", "#2D8CFF"], ["Google Meet", "#00AC47"], ["PowerPoint", "#D35230"], ["Google Slides", "#F4B400"], ["Canva", "#00C4CC"], ["Keynote", "#1E90FF"], ["Microsoft Teams", "#6264A7"]];
+const mqHtml = TOOLS.map(([n, c]) => `<span class="mq-it" style="--c:${c}"><i></i>${n}</span>`).join("");
+$("#mq").innerHTML = mqHtml + mqHtml;
+
+// Titular que rota
+const rots = $$("#rot > span"), rotBox = $("#rot"); let ri = 0;
+const fitRot = () => { rotBox.style.width = rots[ri].offsetWidth + "px"; };
+fitRot(); document.fonts && document.fonts.ready.then(fitRot); addEventListener("resize", fitRot);
+if (!reduce) setInterval(() => {
+  const cur = rots[ri]; cur.classList.remove("on"); cur.classList.add("out");
+  ri = (ri + 1) % rots.length; const nx = rots[ri];
+  nx.classList.remove("out"); nx.style.transition = "none"; nx.style.transform = "translateY(130%)"; nx.offsetHeight; nx.style.transition = ""; nx.style.transform = ""; nx.classList.add("on");
+  fitRot(); setTimeout(() => cur.classList.remove("out"), 750);
+}, 2400);
+
+// Luz que sigue al mouse en la portada (y deriva sola en el celular)
+const hero = $("#top");
+if (!reduce) {
+  if (fine) hero.addEventListener("pointermove", (e) => { const r = hero.getBoundingClientRect(); hero.style.setProperty("--mx", (e.clientX - r.left) + "px"); hero.style.setProperty("--my", (e.clientY - r.top) + "px"); });
+  else { let t = 0; const drift = () => { t += .006; hero.style.setProperty("--mx", (50 + Math.sin(t) * 30) + "%"); hero.style.setProperty("--my", (30 + Math.cos(t * 1.3) * 14) + "%"); requestAnimationFrame(drift); }; drift(); }
+}
+
+// Cursor propio, íconos con paralaje y botones con imán
+const cur = $("#cur");
+if (!reduce && fine) {
+  const fl = $$(".fl"); let tx = 0, ty = 0, cx = 0, cy = 0;
+  addEventListener("pointermove", (e) => { tx = e.clientX; ty = e.clientY; cur.style.opacity = e.target.closest(".screen") ? 0 : 1; const x = e.clientX / innerWidth - .5, y = e.clientY / innerHeight - .5; fl.forEach((f, i) => { const k = (i % 3 + 1) * 10; f.style.transform = `translate(${x * k}px, ${y * k}px)`; }); });
+  (function follow() { cx += (tx - cx) * .2; cy += (ty - cy) * .2; cur.style.transform = `translate(${cx}px, ${cy}px)`; requestAnimationFrame(follow); })();
+  addEventListener("pointerover", (e) => cur.classList.toggle("big", !!e.target.closest("a,button,input,label,summary")));
+  $$(".mag").forEach((b) => { b.addEventListener("pointermove", (e) => { const r = b.getBoundingClientRect(); b.style.transform = `translate(${(e.clientX - r.left - r.width / 2) * .18}px, ${(e.clientY - r.top - r.height / 2) * .28}px)`; }); b.addEventListener("pointerleave", () => { b.style.transform = ""; }); });
+}
+
+// Partículas suaves en la portada
+(function motes() {
+  if (reduce) return;
+  const cv = $("#motes"), ctx = cv.getContext("2d"); let W, H, run = true;
+  const size = () => { const d = Math.min(devicePixelRatio || 1, 2); W = cv.clientWidth; H = cv.clientHeight; cv.width = W * d; cv.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0); };
+  size(); addEventListener("resize", size);
+  const P = Array.from({ length: 70 }, () => ({ x: Math.random(), y: Math.random(), r: Math.random() * 1.6 + .3, v: Math.random() * .00035 + .0001, h: Math.random() < .15 }));
+  new IntersectionObserver((es) => { const was = run; run = es[0].isIntersecting; if (run && !was) loop(); }).observe(cv);
+  function loop() {
+    if (!run) return; ctx.clearRect(0, 0, W, H);
+    for (const p of P) { p.y -= p.v; if (p.y < -.02) { p.y = 1.02; p.x = Math.random(); } const a = Math.sin(p.y * Math.PI) * .8; ctx.fillStyle = p.h ? `rgba(255,77,94,${a})` : `rgba(159,196,255,${a})`; ctx.beginPath(); ctx.arc(p.x * W, p.y * H, p.r, 0, 7); ctx.fill(); }
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+
+// Lente de grabación: dentro del círculo se ve lo que graba Loom (la diapositiva sin teleprompter)
+(function lens() {
+  const scr = $("#hscreen"), L = $("#lens");
+  const img = new Image(); img.src = "img/rec.webp";
+  L.style.backgroundImage = "url(img/rec.webp)";
+  let x = .5, y = .22, tx = x, ty = y, user = false, t = 0;
+  const place = () => {
+    const r = scr.getBoundingClientRect(), s = L.offsetWidth;
+    L.style.backgroundSize = `${r.width}px ${r.height}px`;
+    const px = x * r.width - s / 2, py = y * r.height - s / 2;
+    L.style.transform = `translate(${px}px, ${py}px)`;
+    L.style.backgroundPosition = `${-px}px ${-py}px`;
+  };
+  scr.addEventListener("pointermove", (e) => { const r = scr.getBoundingClientRect(); tx = (e.clientX - r.left) / r.width; ty = (e.clientY - r.top) / r.height; user = true; });
+  scr.addEventListener("pointerleave", () => { user = false; });
+  (function loop() {
+    if (!user && !reduce) { t += .008; tx = .5 + Math.sin(t) * .2; ty = .2 + Math.sin(t * .7) * .08; }
+    x += (tx - x) * .12; y += (ty - y) * .12; place(); requestAnimationFrame(loop);
+  })();
+  addEventListener("resize", place);
+})();
+
+// Videos: se cargan solo al acercarse
+const vio = new IntersectionObserver((es) => es.forEach((e) => {
+  const v = e.target;
+  if (e.isIntersecting) { if (!v.src && v.dataset.src) v.src = v.dataset.src; if (!reduce) v.play().catch(() => {}); }
+  else v.pause();
+}), { rootMargin: "200px" });
+$$("video[data-src]").forEach((v) => vio.observe(v));
+
+// Destacador y subrayado al aparecer
+const hio = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("on"); hio.unobserve(e.target); } }), { threshold: .6 });
+$$(".hl").forEach((h) => hio.observe(h));
+
+// Cómo funciona: pasos con riel que se llena
+const sts = $$(".st"), mocks = $$(".mock");
+function setStep(i) { sts.forEach((s, k) => s.classList.toggle("on", k === i)); mocks.forEach((m, k) => m.classList.toggle("on", k === i)); $("#steps").style.setProperty("--rail", (i / (sts.length - 1) * 100) + "%"); }
+sts.forEach((s, i) => s.addEventListener("click", () => setStep(i)));
+let stepAuto = 0, stepVisible = false, stepHover = false;
+new IntersectionObserver((es) => { stepVisible = es[0].isIntersecting; }, { threshold: .3 }).observe($("#como"));
+$(".how").addEventListener("pointerenter", () => stepHover = true); $(".how").addEventListener("pointerleave", () => stepHover = false);
+setInterval(() => { if (stepVisible && !stepHover && !reduce) { stepAuto = ($$(".st").findIndex((s) => s.classList.contains("on")) + 1) % sts.length; setStep(stepAuto); } }, 4200);
+
+// Pruébalo aquí: teleprompter de demostración + celular
+(function demo() {
+  const txt = $("#tpTxt"), view = $("#tpView"), cd = $("#tpCd");
+  let pos = 0, speed = 3, playing = false, counting = false, last = 0, el = 0, timer;
+  const secs = $$(".sec", txt);
+  const max = () => txt.scrollHeight - 300 - 87 + 40;
+  const pxs = () => speed * 9;
+  const fmt = (s) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+  const curSec = () => { let i = 0; secs.forEach((s, k) => { if (s.offsetTop - 87 <= pos + 4) i = k; }); return i; };
+  function ui() {
+    const on = playing || counting;
+    $("#tpGo").classList.toggle("on", on); $("#tpGo").textContent = on ? "❚❚ PAUSA" : "▶ INICIAR";
+    $("#phGo").classList.toggle("on", on); $("#phGo").textContent = on ? "PAUSA" : "INICIAR";
+    $("#tp3").classList.toggle("on", counting); $("#ph3").classList.toggle("on", counting);
+    $("#tpSpdV").textContent = $("#phSpd").textContent = speed + "x"; $("#tpSpd").value = speed;
+    const b = `DIAPOSITIVA 0${curSec() + 1} / 03`; $("#tpBadge").textContent = $("#phBadge").textContent = b;
+    $("#tpE").textContent = fmt(el); $("#tpR").textContent = fmt(Math.max(0, max() - pos) / pxs());
+  }
+  function stop() { playing = false; counting = false; clearTimeout(timer); cd.hidden = true; ui(); }
+  function start(withCd) {
+    if (pos >= max() - 1) { pos = 0; el = 0; }
+    if (!withCd) { playing = true; last = performance.now(); ui(); return; }
+    counting = true; let n = 3; cd.hidden = false; ui();
+    const tick = () => { if (!counting) return; if (n === 0) { counting = false; cd.hidden = true; playing = true; last = performance.now(); ui(); return; } cd.innerHTML = `<span>${n}</span>`; n--; timer = setTimeout(tick, 1000); };
+    tick();
+  }
+  const toggle = (withCd) => (playing || counting) ? stop() : start(withCd);
+  const go = (i) => { const s = secs[Math.max(0, Math.min(secs.length - 1, i))]; pos = Math.min(max(), s.offsetTop - 87); render(); ui(); };
+  function render() { txt.style.transform = `translateY(${-pos}px)`; }
+  function frame(now) {
+    if (playing) { const dt = Math.min(.1, (now - last) / 1000); last = now; pos += pxs() * dt; el += dt; if (pos >= max()) { pos = max(); stop(); } render(); ui(); }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  $("#tpGo").onclick = $("#phGo").onclick = () => toggle(false);
+  $("#tp3").onclick = $("#ph3").onclick = () => toggle(true);
+  $("#tpSpd").oninput = (e) => { speed = Number(e.target.value); ui(); };
+  $("#phSlow").onclick = () => { speed = Math.max(1, speed - .5); ui(); };
+  $("#phFast").onclick = () => { speed = Math.min(8, speed + .5); ui(); };
+  $("#phPrev").onclick = () => { const i = curSec(); go(pos - (secs[i].offsetTop - 87) > 20 ? i : i - 1); };
+  $("#phNext").onclick = () => go(curSec() + 1);
+  view.addEventListener("wheel", (e) => { e.preventDefault(); pos = Math.max(0, Math.min(max(), pos + e.deltaY * .5)); render(); ui(); }, { passive: false });
+  ui();
+})();
+
+// Comparación con interruptor
+const CMP = {
+  no: [["Miras hacia abajo", "Tus alumnos lo notan y se pierde la conexión."], ["Repites tomas", "Te trabas, pierdes el hilo y vuelves a empezar."], ["El guion sale en la grabación", "Si lo pones en pantalla, Loom también lo graba."], ["Improvisas de más", "La lección de 8 minutos termina durando 20."]],
+  yes: [["Miras a cámara", "El texto pasa justo debajo de tu webcam."], ["Una sola toma", "Si te equivocas, pausas con el teclado o el celular y retomas sin cortar."], ["El guion queda fuera del video", "Tú lo ves; Loom y OBS no lo graban (Windows)."], ["Clases claras y a tiempo", "Cada diapositiva con su parte del guion y su tiempo."]],
+};
+function setCmp(yes) {
+  $("#cmpYes").classList.toggle("on", yes); $("#cmpNo").classList.toggle("on", !yes);
+  const box = $("#cmp"); box.className = "cmp " + (yes ? "yes" : "no");
+  box.innerHTML = CMP[yes ? "yes" : "no"].map(([b, s]) => `<div><i>${yes ? "✓" : "✕"}</i><span><b>${b}</b>${s}</span></div>`).join("");
+}
+$("#cmpNo").onclick = () => setCmp(false); $("#cmpYes").onclick = () => setCmp(true);
+setCmp(false);
+new IntersectionObserver((es, o) => { if (es[0].isIntersecting && !reduce) { setTimeout(() => setCmp(true), 1600); o.disconnect(); } }, { threshold: .5 }).observe($("#cmp"));
+
+// La cuenta: boleta que se imprime
+const nf = (n, d = 0) => n.toLocaleString("es-CL", { minimumFractionDigits: d, maximumFractionDigits: d });
+function calc(animate) {
+  const v = +$("#cV").value, r = +$("#cR").value, m = +$("#cM").value;
+  $("#oV").textContent = v; $("#oR").textContent = r; $("#oM").textContent = m;
+  const tomas = v * r, mins = tomas * m, yearH = mins * 12 / 60;
+  $("#rV").textContent = nf(v); $("#rT").textContent = nf(tomas); $("#rM").textContent = nf(mins);
+  $("#rY").textContent = nf(yearH, 1) + " h"; $("#rD").textContent = nf(yearH / 8, 1) + " días";
+  if (animate && !reduce) { const rc = $("#receipt"); rc.classList.remove("print"); rc.offsetWidth; rc.classList.add("print"); }
+}
+["#cV", "#cR", "#cM"].forEach((s) => { $(s).addEventListener("input", () => calc(false)); $(s).addEventListener("change", () => calc(true)); });
+calc(false);
+
+// Navegación sólida y barra fija
+const nav = $("#nav"), bar = $("#bar");
+addEventListener("scroll", () => {
+  nav.classList.toggle("solid", scrollY > 20);
+  const d = $("#descargar").getBoundingClientRect();
+  bar.classList.toggle("show", scrollY > 700 && !(d.top < innerHeight && d.bottom > 0));
+}, { passive: true });
+
+// Entradas con GSAP (desde un estado visible)
+if (window.gsap && window.ScrollTrigger && !reduce) {
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.from(".hero-c > *", { y: 22, opacity: .2, duration: .8, stagger: .08, ease: "power3.out" });
+  gsap.from(".stage", { y: 40, opacity: .3, duration: 1, delay: .3, ease: "power3.out" });
+  $$("section h2, .bc, .ft, .pv, .st, .works > div, .gs").forEach((el) => gsap.from(el, { y: 26, opacity: .35, duration: .7, ease: "power2.out", scrollTrigger: { trigger: el, start: "top 88%" } }));
+  gsap.fromTo(".squig path", { strokeDashoffset: 260 }, { strokeDashoffset: 0, duration: 1.2, ease: "power2.inOut", scrollTrigger: { trigger: ".squig", start: "top 80%" } });
+}
+</script>
+
+</body>
+</html>
