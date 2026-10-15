@@ -350,7 +350,18 @@ async function renderRemote(info) {
   if (info.running) {
     $('#qrImg').src = info.qr;
     $('#remoteUrl').textContent = info.url;
+    renderFirewall(await pf.invoke('firewall:status'));
   }
+}
+
+function renderFirewall(st, extra) {
+  $('#fwBox').hidden = !st.needed || st.allowed;
+  $('#fwOk').hidden = !st.needed || !st.allowed;
+  $('#fwOk').textContent = '✓ ' + t('fwOk');
+  $('#fwTitle').textContent = t('fwBlocked');
+  $('#fwDesc').textContent = extra || t('fwBlockedDesc');
+  $('#btnFw').textContent = t('fwAllow');
+  $('#btnFw').disabled = false;
 }
 
 // ---------- Recording Check ----------
@@ -434,6 +445,12 @@ function bindUi() {
   });
 
   $('#remoteToggle').addEventListener('change', async (e) => renderRemote(await pf.invoke('remote:set', e.target.checked)));
+  $('#btnFw').onclick = async () => {
+    $('#btnFw').disabled = true;
+    $('#btnFw').textContent = t('fwAllowing');
+    const st = await pf.invoke('firewall:allow');
+    renderFirewall(st, st.allowed ? '' : t(st.canceled ? 'fwCanceled' : 'fwFailed'));
+  };
   $('#btnCopyUrl').onclick = () => {
     navigator.clipboard.writeText($('#remoteUrl').textContent);
     $('#btnCopyUrl').textContent = t('copied');

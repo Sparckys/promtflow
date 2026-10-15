@@ -307,7 +307,13 @@
             <div class="qr-frame"><img id="qrImg" alt="QR" /></div>
             <p class="hint center" data-i18n="remoteScan"></p>
             <div class="url-row"><code id="remoteUrl"></code><button class="btn btn-ghost btn-sm" id="btnCopyUrl" data-i18n="copy"></button></div>
-            <p class="hint center subtle" data-i18n="remoteFirewall"></p>
+            <div class="fw" id="fwBox" hidden>
+              <div class="fw-t" id="fwTitle"></div>
+              <p class="fw-d" id="fwDesc"></p>
+              <button class="btn btn-primary btn-block btn-sm" id="btnFw"></button>
+            </div>
+            <div class="fw-ok" id="fwOk" hidden></div>
+            <p class="hint center subtle" data-i18n="remoteSameWifi"></p>
           </div>
           <p class="hint err" id="remoteErr"></p>
         </section>

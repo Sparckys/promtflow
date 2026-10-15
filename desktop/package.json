@@ -1,7 +1,7 @@
 {
   "name": "guionflow",
   "productName": "GuionFlow",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Teleprompter profesional de escritorio para grabar con Loom, presentar diapositivas y leer guiones sin que la audiencia lo vea.",
   "main": "src/main.js",
   "author": "GuionFlow",

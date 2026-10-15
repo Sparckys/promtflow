@@ -21,7 +21,7 @@ function localIp() {
   const candidates = [];
   for (const [name, addrs] of Object.entries(os.networkInterfaces())) {
     for (const a of addrs || []) {
-      if (a.family !== 'IPv4' || a.internal) continue;
+      if (a.family !== 'IPv4' || a.internal || a.address.startsWith('169.254.')) continue;
       // Evita adaptadores virtuales comunes (VirtualBox, WSL, VPN, Docker).
       const virtual = /virtual|vbox|vmware|wsl|docker|hyper-v|vethernet|tailscale|zerotier/i.test(name);
       candidates.push({ addr: a.address, score: (virtual ? 0 : 2) + (/^192\.168\./.test(a.address) ? 1 : 0) });
@@ -95,7 +95,7 @@ function info() {
 async function infoWithQr() {
   const i = info();
   if (!i.running) return i;
-  i.qr = await QRCode.toDataURL(i.url, { margin: 1, width: 260, color: { dark: '#0b0d12', light: '#ffffff' } });
+  i.qr = await QRCode.toDataURL(i.url, { margin: 3, width: 360, errorCorrectionLevel: 'M', color: { dark: '#000000', light: '#ffffff' } });
   return i;
 }
 

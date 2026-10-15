@@ -301,6 +301,38 @@ async function captureSelfTest() {
   return result;
 }
 
+// ---------- Firewall de Windows (control desde el celular) ----------
+// Si la red Wi-Fi está como "Pública" o se rechazó el aviso del firewall, Windows bloquea
+// la conexión del celular aunque el QR se escanee bien. Se crea una regla para esta app.
+
+const FW_RULE = 'GuionFlow (control desde el celular)';
+
+function firewallStatus() {
+  if (process.platform !== 'win32') return Promise.resolve({ needed: false, allowed: true });
+  const { execFile } = require('child_process');
+  return new Promise((resolve) => {
+    execFile('netsh', ['advfirewall', 'firewall', 'show', 'rule', `name=${FW_RULE}`, 'verbose'], { windowsHide: true }, (err, stdout) => {
+      const allowed = !err && String(stdout).toLowerCase().includes(process.execPath.toLowerCase());
+      resolve({ needed: true, allowed });
+    });
+  });
+}
+
+function allowFirewall() {
+  if (process.platform !== 'win32') return Promise.resolve({ needed: false, allowed: true });
+  const { execFile } = require('child_process');
+  const exe = process.execPath.replace(/'/g, "''");
+  const args = `advfirewall firewall add rule name="${FW_RULE}" dir=in action=allow program="${exe}" enable=yes profile=any`;
+  // Start-Process -Verb RunAs muestra el aviso de administrador de Windows una sola vez.
+  const ps = `Start-Process -FilePath netsh -ArgumentList '${args.replace(/'/g, "''")}' -Verb RunAs -Wait -WindowStyle Hidden`;
+  return new Promise((resolve) => {
+    execFile('powershell', ['-NoProfile', '-EncodedCommand', Buffer.from(ps, 'utf16le').toString('base64')], { windowsHide: true }, async (err) => {
+      const st = await firewallStatus();
+      resolve({ ...st, canceled: !!err && !st.allowed });
+    });
+  });
+}
+
 // ---------- IPC ----------
 
 function setupIpc() {
@@ -386,6 +418,8 @@ function setupIpc() {
     return remote.info();
   });
   ipcMain.handle('remote:info', () => remote.info());
+  ipcMain.handle('firewall:status', () => firewallStatus());
+  ipcMain.handle('firewall:allow', () => allowFirewall());
 
   ipcMain.handle('shortcuts:list', () => shortcutState);
   ipcMain.handle('capture:selftest', () => captureSelfTest());
