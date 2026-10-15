@@ -223,7 +223,7 @@ input, textarea, select { font: inherit; color: inherit; }
   border: 1px solid var(--line-2); border-radius: 18px;
   box-shadow: 0 16px 40px -24px rgba(0,0,0,.9);
 }
-.deck-state { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.deck-state { display: flex; align-items: center; gap: 12px; min-width: 0; overflow: hidden; }
 .live-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--text-3); flex: none; }
 .live-dot.paused { background: var(--amber); }
 .live-dot.playing { background: var(--red); box-shadow: 0 0 0 0 rgba(255,93,108,.6); animation: pulse 1.6s infinite; }
@@ -458,6 +458,7 @@ kbd {
   .paper, .deck { margin-left: 22px; margin-right: 22px; }
   .timers .tm-s { display: none; }
   .btn-open span { display: none; }
+  .deck-text { display: none; }
   .btn-open { padding: 0 11px; }
 }
 

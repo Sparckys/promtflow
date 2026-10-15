@@ -1,7 +1,7 @@
 {
   "name": "promptflow",
   "productName": "PromptFlow",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Teleprompter profesional de escritorio para grabar con Loom, presentar diapositivas y leer guiones sin que la audiencia lo vea.",
   "main": "src/main.js",
   "author": "PromptFlow",

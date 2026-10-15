@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; cursor: none; }
+  body {
+    font-family: "Segoe UI Variable Display", "Segoe UI", sans-serif;
+    background: radial-gradient(1200px 700px at 85% 110%, #ffe1c2 0%, transparent 60%), radial-gradient(900px 600px at 0% 0%, #e4e8ff 0%, transparent 60%), #fbf8f2;
+    color: #15172a; display: grid; grid-template-columns: 1.15fr .85fr; align-items: center; padding: 0 7vw; gap: 5vw; box-sizing: border-box;
+  }
+  .tag { display: inline-flex; gap: .6em; align-items: center; font: 700 1.05vw/1 "Segoe UI", sans-serif; letter-spacing: .18em; color: #5b5ff0; text-transform: uppercase; }
+  .tag i { width: 2.4vw; height: .25vw; background: #5b5ff0; border-radius: 9px; }
+  h1 { font-size: 5vw; line-height: 1.02; letter-spacing: -.04em; margin: 1.6vw 0 1.4vw; font-weight: 800; }
+  h1 em { font-style: normal; color: #5b5ff0; }
+  p { font-size: 1.55vw; line-height: 1.5; color: #4a4e66; margin: 0 0 2.4vw; max-width: 34vw; }
+  ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 1vw; }
+  li { display: flex; gap: 1vw; align-items: center; font-size: 1.35vw; font-weight: 600; }
+  li b { width: 2.3vw; height: 2.3vw; border-radius: .7vw; display: grid; place-items: center; color: #fff; font-size: 1.1vw; }
+  .card { background: #fff; border-radius: 1.6vw; padding: 2.4vw; box-shadow: 0 2.5vw 5vw -2vw rgba(40,40,90,.25); }
+  .card h3 { margin: 0 0 1.2vw; font-size: 1.3vw; color: #8a8ea6; letter-spacing: .08em; text-transform: uppercase; }
+  .bar { display: grid; grid-template-columns: 9vw 1fr 3vw; align-items: center; gap: 1vw; margin: 1.1vw 0; font-size: 1.15vw; font-weight: 600; }
+  .bar span { height: 1.1vw; border-radius: 9px; background: #eef0fb; overflow: hidden; }
+  .bar span i { display: block; height: 100%; border-radius: 9px; }
+  .foot { position: fixed; left: 7vw; right: 7vw; bottom: 3.2vw; display: flex; justify-content: space-between; font-size: 1vw; color: #8a8ea6; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div>
+    <div class="tag"><i></i>Módulo 2 · Lección 3</div>
+    <h1>Graba tu primera clase <em>sin trabarte</em></h1>
+    <p>Tres decisiones que convierten lo que sabes en una clase clara, corta y fácil de seguir.</p>
+    <ul>
+      <li><b style="background:#22b35e">1</b>Una sola idea por lección</li>
+      <li><b style="background:#ff7a1a">2</b>Un ejemplo de tu propia experiencia</li>
+      <li><b style="background:#5b5ff0">3</b>Una tarea concreta al final</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Antes de grabar</h3>
+    <div class="bar">Guion listo<span><i style="width:100%;background:#22b35e"></i></span>✓</div>
+    <div class="bar">Luz y cámara<span><i style="width:100%;background:#ff7a1a"></i></span>✓</div>
+    <div class="bar">Diapositivas<span><i style="width:100%;background:#5b5ff0"></i></span>✓</div>
+  </div>
+  <div class="foot"><span>Academia de ejemplo</span><span>3 / 12</span></div>
+</body>
+</html>

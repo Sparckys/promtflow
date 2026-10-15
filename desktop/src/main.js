@@ -416,7 +416,7 @@ async function runCaptureTest(dir) {
   openPrompter(store.getAll().scripts[0].id);
   await wait(1500);
   const grabbers = {
-    ddagrab: ['-y', '-f', 'lavfi', '-i', 'ddagrab=output_idx=0:framerate=5,hwdownload,format=bgra', '-frames:v', '1'],
+    ddagrab: ['-y', '-f', 'lavfi', '-i', 'ddagrab=output_idx=0:draw_mouse=0:framerate=5,hwdownload,format=bgra', '-frames:v', '1'],
     gdigrab: ['-y', '-f', 'gdigrab', '-i', 'desktop', '-frames:v', '1'],
   };
   for (const prot of [true, false]) {
@@ -486,8 +486,72 @@ async function runSnapshot(dir) {
 // ---------- Arranque ----------
 
 // Las pruebas de desarrollo usan su propia carpeta de datos (no tocan los guiones reales).
-if (process.env.PF_SNAPSHOT || process.env.PF_CAPTURETEST) {
-  app.setPath('userData', path.join(app.getPath('temp'), 'PromptFlow-test'));
+if (process.env.PF_SNAPSHOT || process.env.PF_CAPTURETEST || process.env.PF_LANDING) {
+  app.setPath('userData', path.join(app.getPath('temp'), process.env.PF_LANDING ? 'PromptFlow-landing' : 'PromptFlow-test'));
+}
+
+// Solo para desarrollo: PF_LANDING=<carpeta> graba los videos y capturas reales de la landing.
+async function runLandingCapture(dir) {
+  const fs = require('fs');
+  const { execFileSync } = require('child_process');
+  const script = store.getAll().scripts[0];
+  const display = screen.getPrimaryDisplay();
+  const slide = new BrowserWindow({ ...display.bounds, frame: false, focusable: false, skipTaskbar: true, show: false, fullscreen: true, backgroundColor: '#fbf8f2' });
+  slide.setAlwaysOnTop(true, 'floating');
+  await slide.loadFile(path.join(__dirname, '..', 'tools', 'slide.html'));
+  slide.showInactive();
+  store.setSettings({ speed: 4, fontSize: 40, countdown: 3, bgOpacity: 0.9, highlight: true, compact: false, prompterBounds: null });
+  openPrompter(script.id);
+  await new Promise((r) => prompterWin.webContents.once('did-finish-load', r));
+  prompterWin.setFocusable(false);
+  const wa = display.workArea;
+  const w = Math.round(wa.width * 0.46), h = Math.round(wa.height * 0.3);
+  prompterWin.setBounds({ x: wa.x + Math.round((wa.width - w) / 2), y: wa.y + 14, width: w, height: h });
+  await wait(1500);
+  prompterWin.setAlwaysOnTop(true, 'screen-saver');
+  prompterWin.moveTop();
+  prompterWin.showInactive();
+  await wait(500);
+  const shot = async (win, name) => fs.writeFileSync(path.join(dir, name), (await win.webContents.capturePage()).toPNG());
+  const grab = (name, secs) => execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'lavfi', '-i', 'ddagrab=output_idx=0:draw_mouse=0:framerate=30,hwdownload,format=bgra',
+    '-t', String(secs), '-vf', 'scale=1280:-2,format=yuv420p', '-c:v', 'libx264', '-crf', '30', '-preset', 'slow', '-an', '-movflags', '+faststart', path.join(dir, name)], { timeout: 60000 });
+  const still = (name) => execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'lavfi', '-i', 'ddagrab=output_idx=0:framerate=5,hwdownload,format=bgra', '-frames:v', '1', path.join(dir, name)], { timeout: 30000 });
+  for (const [prot, tag] of [[false, 'see'], [true, 'rec']]) {
+    store.setSettings({ captureProtection: prot });
+    applyProtection(prompterWin);
+    applyProtection(mainWin);
+    prompterWin.webContents.send('cmd', { cmd: 'top' });
+    await wait(900);
+    still(`${tag}.png`);
+    prompterWin.webContents.send('cmd', { cmd: 'play' });
+    grab(`${tag}.mp4`, 9);
+    prompterWin.webContents.send('cmd', { cmd: 'pause' });
+    console.log('ok', tag);
+  }
+  store.setSettings({ captureProtection: true });
+  applyProtection(prompterWin);
+  slide.close();
+  if (process.env.PF_LANDING_VIDEO_ONLY) return app.quit();
+  // Capturas de la interfaz
+  prompterWin.webContents.send('cmd', { cmd: 'gotoSection', arg: 1 });
+  await wait(1200);
+  await shot(prompterWin, 'ui-prompter.png');
+  mainWin.setBounds({ x: wa.x + 40, y: wa.y + 40, width: 1440, height: 880 });
+  mainWin.showInactive();
+  await wait(800);
+  await shot(mainWin, 'ui-main.png');
+  await mainWin.webContents.executeJavaScript(`document.querySelector('[data-tab="privacy"]').click(); document.querySelector('#btnSelfTest').click();`);
+  await wait(3500);
+  await shot(mainWin, 'ui-privacy.png');
+  await remote.start(handleCommand);
+  const phone = new BrowserWindow({ width: 390, height: 844, focusable: false, show: false });
+  phone.showInactive();
+  await phone.loadURL((await remote.info()).url);
+  await wait(1500);
+  await shot(phone, 'ui-remote.png');
+  remote.stop();
+  console.log('done');
+  app.quit();
 }
 
 if (!app.requestSingleInstanceLock()) {
@@ -510,6 +574,7 @@ if (!app.requestSingleInstanceLock()) {
     }
     if (process.env.PF_SNAPSHOT) runSnapshot(process.env.PF_SNAPSHOT);
     if (process.env.PF_CAPTURETEST) runCaptureTest(process.env.PF_CAPTURETEST);
+    if (process.env.PF_LANDING) runLandingCapture(process.env.PF_LANDING);
   });
 
   app.on('will-quit', () => {
