@@ -1,4 +1,4 @@
-# Compila PromptFlow para Windows (.exe) y Mac (.dmg) y publica ambos en "Releases".
+# Compila GuionFlow para Windows (.exe) y Mac (.dmg) y publica ambos en "Releases".
 # Se ejecuta solo al subir cambios a GitHub, o a mano desde la pestaña "Actions".
 name: Build installers
 
@@ -18,10 +18,10 @@ jobs:
         include:
           - os: windows-latest
             script: dist:win
-            file: desktop/dist/PromptFlow-Windows.exe
+            file: desktop/dist/GuionFlow-Windows.exe
           - os: macos-latest
             script: dist:mac
-            file: desktop/dist/PromptFlow-Mac.dmg
+            file: desktop/dist/GuionFlow-Mac.dmg
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -55,19 +55,19 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
-          name: PromptFlow — Descargas
+          name: GuionFlow — Descargas
           make_latest: true
           body: |
-            ## Descarga PromptFlow
+            ## Descarga GuionFlow
 
             Página de descarga: https://sparckys.github.io/promtflow/
 
             | Computador | Archivo |
             |---|---|
-            | 🪟 **Windows** | **PromptFlow-Windows.exe** |
-            | 🍎 **Mac** | **PromptFlow-Mac.dmg** |
+            | 🪟 **Windows** | **GuionFlow-Windows.exe** |
+            | 🍎 **Mac** | **GuionFlow-Mac.dmg** |
 
             **Windows:** abre el archivo. Si aparece "Windows protegió su PC", pulsa *Más información* → *Ejecutar de todas formas*.
 
-            **Mac:** abre el .dmg y arrastra PromptFlow a Aplicaciones. La primera vez, si macOS dice que no puede verificarlo: *Ajustes del Sistema → Privacidad y seguridad → Abrir de todas formas*.
+            **Mac:** abre el .dmg y arrastra GuionFlow a Aplicaciones. La primera vez, si macOS dice que no puede verificarlo: *Ajustes del Sistema → Privacidad y seguridad → Abrir de todas formas*.
           files: out/*

@@ -85,12 +85,8 @@ input, textarea, select { font: inherit; color: inherit; }
   padding: 18px 14px 14px;
 }
 .brand { display: flex; align-items: center; gap: 12px; padding: 2px 6px 18px; }
-.logo {
-  width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: #fff;
-  background: radial-gradient(120% 120% at 20% 0%, #9aa7ff 0%, #6a7bf5 45%, #3b3fa8 100%);
-  box-shadow: 0 8px 24px -8px var(--accent-glow), inset 0 1px 0 rgba(255,255,255,.25);
-}
-.logo svg { width: 24px; height: 24px; }
+.logo { width: 40px; height: 40px; flex: none; filter: drop-shadow(0 8px 16px rgba(31,99,245,.45)); }
+.logo img { width: 40px; height: 40px; display: block; }
 .brand-name { font: 700 17px/1.1 var(--font-display); letter-spacing: -.2px; }
 .brand-sub { font-size: 11.5px; color: var(--text-3); margin-top: 3px; }
 

@@ -38,7 +38,7 @@ function createMainWindow() {
     height: 820,
     minWidth: 980,
     minHeight: 620,
-    title: 'PromptFlow',
+    title: 'GuionFlow',
     backgroundColor: '#0b0d12',
     icon: path.join(__dirname, '..', 'build', 'icon.png'),
     autoHideMenuBar: true,
@@ -93,7 +93,7 @@ function openPrompter(scriptId, thenCmd) {
     resizable: true,
     alwaysOnTop: true,
     fullscreenable: false,
-    title: 'PromptFlow — Teleprompter',
+    title: 'GuionFlow — Teleprompter',
     webPreferences: { preload: PRELOAD, contextIsolation: true, nodeIntegration: false, backgroundThrottling: false },
   });
   // Nivel 'screen-saver': queda por encima incluso de presentaciones a pantalla completa.
@@ -487,7 +487,7 @@ async function runSnapshot(dir) {
 
 // Las pruebas de desarrollo usan su propia carpeta de datos (no tocan los guiones reales).
 if (process.env.PF_SNAPSHOT || process.env.PF_CAPTURETEST || process.env.PF_LANDING) {
-  app.setPath('userData', path.join(app.getPath('temp'), process.env.PF_LANDING ? 'PromptFlow-landing' : 'PromptFlow-test'));
+  app.setPath('userData', path.join(app.getPath('temp'), process.env.PF_LANDING ? 'GuionFlow-landing' : 'GuionFlow-test'));
 }
 
 // Solo para desarrollo: PF_LANDING=<carpeta> graba los videos y capturas reales de la landing.

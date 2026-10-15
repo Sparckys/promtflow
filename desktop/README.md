@@ -1,4 +1,4 @@
-# PromptFlow — Teleprompter para presentar y grabar
+# GuionFlow — Teleprompter para presentar y grabar
 
 **Descargar:** https://sparckys.github.io/promtflow/
 
@@ -8,9 +8,9 @@ Teleprompter de escritorio para Windows y Mac, pensado para grabar con Loom, pre
 
 | Sistema | Archivo | Cómo se obtiene |
 |---|---|---|
-| Windows | `dist/PromptFlow-Setup-1.0.0.exe` (instalador) | `npm run dist:win` |
-| Windows | `dist/PromptFlow-Portable-1.0.0.exe` (sin instalar) | `npm run dist:win` |
-| Mac | `dist/PromptFlow-1.0.0-mac.dmg` | En un Mac: `npm run dist:mac`, o con GitHub Actions (abajo) |
+| Windows | `dist/GuionFlow-Setup-1.0.0.exe` (instalador) | `npm run dist:win` |
+| Windows | `dist/GuionFlow-Portable-1.0.0.exe` (sin instalar) | `npm run dist:win` |
+| Mac | `dist/GuionFlow-1.0.0-mac.dmg` | En un Mac: `npm run dist:mac`, o con GitHub Actions (abajo) |
 
 > Los instaladores aún no tienen firma digital. Windows mostrará "Windows protegió su PC" → *Más información* → *Ejecutar de todas formas*. En Mac: clic derecho sobre la app → *Abrir*.
 
@@ -18,7 +18,7 @@ Teleprompter de escritorio para Windows y Mac, pensado para grabar con Loom, pre
 
 1. Sube esta carpeta a un repositorio de GitHub.
 2. Ve a la pestaña **Actions** → **Build installers** → **Run workflow**.
-3. Al terminar, descarga los artefactos `PromptFlow-macOS` (.dmg) y `PromptFlow-Windows` (.exe).
+3. Al terminar, descarga los artefactos `GuionFlow-macOS` (.dmg) y `GuionFlow-Windows` (.exe).
 
 ## Cómo se usa
 

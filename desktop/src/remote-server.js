@@ -44,7 +44,7 @@ function start(handler) {
       res.end(page);
     } else {
       res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
-      res.end('Acceso no autorizado. Escanea el código QR desde PromptFlow.\nUnauthorized. Scan the QR code from PromptFlow.');
+      res.end('Acceso no autorizado. Escanea el código QR desde GuionFlow.\nUnauthorized. Scan the QR code from GuionFlow.');
     }
   });
 

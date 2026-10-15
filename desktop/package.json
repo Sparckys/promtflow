@@ -1,10 +1,10 @@
 {
-  "name": "promptflow",
-  "productName": "PromptFlow",
-  "version": "1.0.2",
+  "name": "guionflow",
+  "productName": "GuionFlow",
+  "version": "1.1.0",
   "description": "Teleprompter profesional de escritorio para grabar con Loom, presentar diapositivas y leer guiones sin que la audiencia lo vea.",
   "main": "src/main.js",
-  "author": "PromptFlow",
+  "author": "GuionFlow",
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
@@ -15,8 +15,8 @@
   },
   "build": {
     "appId": "com.promptflow.teleprompter",
-    "productName": "PromptFlow",
-    "copyright": "PromptFlow",
+    "productName": "GuionFlow",
+    "copyright": "GuionFlow",
     "files": [
       "src/**/*",
       "package.json"
@@ -35,7 +35,7 @@
           ]
         }
       ],
-      "artifactName": "PromptFlow-${version}-${os}-${arch}-${target}.${ext}"
+      "artifactName": "GuionFlow-${version}-${os}-${arch}-${target}.${ext}"
     },
     "nsis": {
       "oneClick": false,
@@ -43,8 +43,8 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "PromptFlow",
-      "artifactName": "PromptFlow-Windows.${ext}"
+      "shortcutName": "GuionFlow",
+      "artifactName": "GuionFlow-Windows.${ext}"
     },
     "mac": {
       "icon": "build/icon.png",
@@ -58,14 +58,14 @@
         }
       ],
       "identity": "-",
-      "artifactName": "PromptFlow-Mac.${ext}",
+      "artifactName": "GuionFlow-Mac.${ext}",
       "extendInfo": {
-        "NSScreenCaptureUsageDescription": "PromptFlow usa este permiso solo para comprobar que el teleprompter NO aparece en tus grabaciones."
+        "NSScreenCaptureUsageDescription": "GuionFlow usa este permiso solo para comprobar que el teleprompter NO aparece en tus grabaciones."
       }
     },
     "dmg": {
-      "title": "PromptFlow",
-      "artifactName": "PromptFlow-Mac.${ext}"
+      "title": "GuionFlow",
+      "artifactName": "GuionFlow-Mac.${ext}"
     }
   },
   "devDependencies": {

@@ -61,7 +61,8 @@ function newId() {
 }
 
 function load() {
-  file = path.join(app.getPath('userData'), 'promptflow-data.json');
+  file = path.join(app.getPath('userData'), 'guionflow-data.json');
+  migrateFromPromptFlow();
   try {
     data = JSON.parse(fs.readFileSync(file, 'utf8'));
   } catch {
@@ -77,6 +78,18 @@ function load() {
   data.settings = { ...DEFAULT_SETTINGS, ...data.settings };
   if (!data.settings.countdown) data.settings.countdown = 3;
   save();
+}
+
+// La app se llamaba PromptFlow: si existen guiones guardados con ese nombre, se traspasan una vez.
+function migrateFromPromptFlow() {
+  if (fs.existsSync(file)) return;
+  const old = [
+    path.join(app.getPath('userData'), 'promptflow-data.json'),
+    path.join(app.getPath('appData'), 'PromptFlow', 'promptflow-data.json'),
+  ].find((f) => fs.existsSync(f));
+  if (old) {
+    try { fs.copyFileSync(old, file); } catch { /* si falla, se empieza con el guion de ejemplo */ }
+  }
 }
 
 let saveTimer = null;
