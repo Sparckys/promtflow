@@ -108,7 +108,8 @@ def run(os):
     time.sleep(5)
     shot('3b-corriendo')
     root = dump('3-corriendo')
-    playing = find(root, r'^En pausa$') is None
+    # El guion de ejemplo se detiene solo en [PAUSA]: basta con que el cronómetro haya avanzado.
+    playing = find(root, r'^00:0[1-9]$|^00:[1-5]\d$') is not None
     print('Desplazamiento:', 'OK' if playing else 'NO ARRANCÓ')
 
     adb('shell', 'input', 'keyevent', 'KEYCODE_HOME')
