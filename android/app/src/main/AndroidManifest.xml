@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Sin permiso de Internet: GuionFlow funciona 100 % sin conexión y no envía nada a ningún sitio. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Mostrar el teleprompter flotando encima de Loom, la cámara o tu presentación. -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- Mantener el teleprompter abierto mientras usas otra app (con controles en la notificación). -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Android 15+: saber si una grabación de pantalla está viendo el teleprompter. -->
+    <uses-permission android:name="android.permission.DETECT_SCREEN_RECORDING" />
+
+    <application
+        android:name=".GuionFlowApp"
+        android:label="GuionFlow"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:allowBackup="false"
+        android:supportsRtl="true"
+        android:usesCleartextTraffic="false"
+        android:theme="@style/AppTheme">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:resizeableActivity="true"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|navigation|uiMode|density"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".PrompterService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Teleprompter flotante que el usuario abre para leer su guion mientras graba con otra app." />
+        </service>
+    </application>
+</manifest>

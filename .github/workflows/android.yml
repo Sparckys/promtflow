@@ -1,0 +1,79 @@
+# Compila GuionFlow para tablets Android (.apk firmado) y lo publica en "Releases".
+# Se ejecuta al subir cambios de android/ o de la interfaz (desktop/src/renderer), o a mano desde "Actions".
+name: Build Android
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, android]
+    paths: ['android/**', 'desktop/src/renderer/**', 'desktop/package.json', '.github/workflows/android.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+
+      - name: Preparar la firma
+        env:
+          GF_KEYSTORE_B64: ${{ secrets.GF_KEYSTORE_B64 }}
+        run: |
+          if [ -z "$GF_KEYSTORE_B64" ]; then echo "::error::Falta el secreto GF_KEYSTORE_B64"; exit 1; fi
+          echo "$GF_KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/guionflow.p12"
+          echo "GF_KEYSTORE=$RUNNER_TEMP/guionflow.p12" >> "$GITHUB_ENV"
+
+      - name: Compilar APK
+        working-directory: android
+        env:
+          GF_KEYSTORE_PASSWORD: ${{ secrets.GF_KEYSTORE_PASSWORD }}
+        run: gradle assembleRelease --no-daemon --stacktrace
+
+      - name: Verificar firma
+        run: |
+          mkdir -p out
+          cp android/app/build/outputs/apk/release/app-release.apk out/GuionFlow-Android.apk
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          "$BT/apksigner" verify --verbose --print-certs out/GuionFlow-Android.apk
+          sha256sum out/GuionFlow-Android.apk | tee out/GuionFlow-Android.apk.sha256
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Android
+          path: out/
+          if-no-files-found: error
+
+      - name: Publicar descarga
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android
+          target_commitish: ${{ github.sha }}
+          name: GuionFlow — Tablet Android
+          make_latest: false
+          body: |
+            ## GuionFlow para tablets Android
+
+            Descarga **GuionFlow-Android.apk** desde la tablet (Lenovo, Samsung, Xiaomi… Android 8 o superior).
+
+            1. Abre el archivo descargado. Si Android avisa, permite *Instalar apps desconocidas* para tu navegador.
+            2. Al abrir el teleprompter por primera vez, activa **Mostrar sobre otras apps** para GuionFlow.
+            3. Deja encendido **Invisible en la grabación** (el escudo verde).
+
+            **Qué ve la grabación**
+            - Grabar con la cámara (o Loom solo cámara): el guion nunca aparece.
+            - Loom / grabador de Android con **«Una sola app»**: el guion no aparece.
+            - Pantalla completa: el guion sale como un recuadro negro, sin texto.
+
+            Sin internet, sin cuentas: la app no tiene permiso de Internet. Huella SHA-256 en `GuionFlow-Android.apk.sha256`.
+          files: |
+            out/GuionFlow-Android.apk
+            out/GuionFlow-Android.apk.sha256
