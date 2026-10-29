@@ -64,6 +64,14 @@ def wait_for(pattern, name, secs=40):
 
 def main():
     import os
+    try:
+        run(os)
+    finally:
+        with open(f'{OUT}/logcat.txt', 'w', encoding='utf-8') as f:
+            f.write(adb('logcat', '-d', check=False))
+
+
+def run(os):
     os.makedirs(OUT, exist_ok=True)
     adb('install', '-r', sys.argv[1])
     adb('shell', 'appops', 'set', PKG, 'SYSTEM_ALERT_WINDOW', 'allow')
@@ -76,28 +84,31 @@ def main():
     shot('1-editor-protegido')  # con la protección activa la captura debe salir negra
 
     tap(btn)
-    root, start = wait_for(r'^INICIAR$', '2-teleprompter')
+    # La ventana flotante no aparece en el árbol de uiautomator: se comprueba por el estado que envía al editor.
+    root, _ = wait_for(r'^Diapositiva 01 / 04', '2-teleprompter-abierto')
     print('Teleprompter flotante OK')
     shot('2-teleprompter-protegido')
 
-    tap(start)
-    time.sleep(5)
-    shot('3-corriendo-protegido')
+    tap(find(root, r'^Iniciar al instante / pausar$'))
+    time.sleep(6)
+    root = dump('3-corriendo')
+    if find(root, r'^En pausa$') is not None:
+        raise SystemExit('El teleprompter no arrancó')
+    print('Desplazamiento OK')
 
-    # Quitar la protección desde el escudo del teleprompter para revisar cómo se ve.
-    shield = find(dump('3-corriendo'), r'Oculto en grabaciones')
-    if shield is not None:
-        tap(shield)
-        time.sleep(2)
-        shot('4-corriendo-sin-proteccion')
-        adb('shell', 'input', 'keyevent', 'KEYCODE_HOME')
-        time.sleep(3)
-        shot('5-encima-de-otra-app-sin-proteccion')
-        shield = find(dump('5-home'), r'Visible en grabaciones')
-        if shield is not None:
-            tap(shield)
-            time.sleep(2)
-        shot('6-encima-de-otra-app-protegido')
+    # Quitar la protección (pestaña Privacidad) para poder ver cómo se ve en capturas.
+    tap(find(root, r'^Privacidad$'))
+    time.sleep(2)
+    root = dump('4-privacidad')
+    toggle = next((n for n in root.iter('node') if n.get('checkable') == 'true' and n.get('checked') == 'true'), None)
+    if toggle is None:
+        raise SystemExit('No encontré el interruptor de protección')
+    tap(toggle)
+    time.sleep(3)
+    shot('4-sin-proteccion-editor-y-teleprompter')
+    adb('shell', 'input', 'keyevent', 'KEYCODE_HOME')
+    time.sleep(4)
+    shot('5-sin-proteccion-encima-de-otra-app')
 
     log = adb('logcat', '-d')
     with open(f'{OUT}/logcat.txt', 'w', encoding='utf-8') as f:
