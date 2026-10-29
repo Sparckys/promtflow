@@ -81,34 +81,42 @@ def run(os):
 
     root, btn = wait_for(r'^Abrir teleprompter$', '1-editor')
     print('Editor OK. Guion de ejemplo:', find(root, r'Guion de ejemplo') is not None)
-    shot('1-editor-protegido')  # con la protección activa la captura debe salir negra
+    shot('0-editor-protegido')  # con la protección activa la captura sale vacía o negra
 
-    tap(btn)
-    # La ventana flotante no aparece en el árbol de uiautomator: se comprueba por el estado que envía al editor.
-    root, _ = wait_for(r'^Diapositiva 01 / 04', '2-teleprompter-abierto')
-    print('Teleprompter flotante OK')
-    shot('2-teleprompter-protegido')
-
-    tap(find(root, r'^Iniciar al instante / pausar$'))
-    time.sleep(6)
-    root = dump('3-corriendo')
-    if find(root, r'^En pausa$') is not None:
-        raise SystemExit('El teleprompter no arrancó')
-    print('Desplazamiento OK')
-
-    # Quitar la protección (pestaña Privacidad) para poder ver cómo se ve en capturas.
+    # Quitar la protección (pestaña Privacidad) para poder ver la pantalla en las capturas.
     tap(find(root, r'^Privacidad$'))
     time.sleep(2)
-    root = dump('4-privacidad')
+    root = dump('1-privacidad')
     toggle = next((n for n in root.iter('node') if n.get('checkable') == 'true' and n.get('checked') == 'true'), None)
     if toggle is None:
         raise SystemExit('No encontré el interruptor de protección')
     tap(toggle)
-    time.sleep(3)
-    shot('4-sin-proteccion-editor-y-teleprompter')
+    time.sleep(2)
+    shot('1-editor-privacidad')
+
+    tap(find(dump('1b'), r'^Abrir teleprompter$'))
+    # La ventana flotante no aparece en el árbol de uiautomator: se comprueba por el estado que envía al editor.
+    root, _ = wait_for(r'^Diapositiva 01 / 04', '2-teleprompter-abierto')
+    print('Teleprompter flotante OK')
+    shot('2-teleprompter')
+
+    play = find(root, r'^Iniciar al instante / pausar$')
+    print('Botón iniciar:', play.get('bounds'))
+    tap(play)
+    time.sleep(1.5)
+    shot('3a-tras-iniciar')
+    time.sleep(5)
+    shot('3b-corriendo')
+    root = dump('3-corriendo')
+    playing = find(root, r'^En pausa$') is None
+    print('Desplazamiento:', 'OK' if playing else 'NO ARRANCÓ')
+
     adb('shell', 'input', 'keyevent', 'KEYCODE_HOME')
     time.sleep(4)
-    shot('5-sin-proteccion-encima-de-otra-app')
+    shot('4-encima-de-otra-app')
+    print(adb('shell', 'dumpsys', 'window', 'windows', check=False).count('GuionFlow'), 'ventanas GuionFlow')
+    if not playing:
+        raise SystemExit('El teleprompter no arrancó')
 
     log = adb('logcat', '-d')
     with open(f'{OUT}/logcat.txt', 'w', encoding='utf-8') as f:
